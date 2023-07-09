@@ -1,0 +1,35 @@
+name: Vormadal Diaper Tracker
+
+on:
+  push:
+    branches:
+      - "main"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: Production
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Install Caprover
+        run: yarn add caprover
+      - name: Cache caprover
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: 'yarn'
+      - name: Deploy to Caprover
+        run: >
+          node_modules/.bin/caprover deploy -h https://captain.caprover.vormadal.com 
+          -b ${{ github.ref }} 
+          -c ./captain-definition 
+          --appToken ${{ secrets.CAPROVER_APP_TOKEN }} 
+          -a "diaper-tracker"
+      - name: Wait for deployment is done
+        run: >
+          node ./scripts/waitForDeploymentCompletion.js 
+          appName=diaper-tracker
+          password=${{ secrets.CAPROVER_PASSWORD }} 
+          url=https://captain.caprover.vormadal.com 
+          cwd=node_modules/.bin
