@@ -1,0 +1,23 @@
+version: '3.4'
+
+services:
+  diapertracker.api:
+    image: ${DOCKER_REGISTRY-}diapertrackerapi
+    build:
+      context: .
+      dockerfile: DiaperTracker.Api/Dockerfile
+  db:
+    image: postgres
+    restart: always
+    ports:
+     - 5432:5432
+    environment:
+        POSTGRES_PASSWORD: example
+  pgadmin:
+    image: dpage/pgadmin4
+    restart: always
+    ports:
+      - 80:80
+    environment:
+        PGADMIN_DEFAULT_EMAIL: runivormadal@gmail.com
+        PGADMIN_DEFAULT_PASSWORD: example
