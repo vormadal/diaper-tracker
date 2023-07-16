@@ -14,7 +14,7 @@ const LandingPage = ({ onLogin }: Props) => {
     >
       <Grid
         item
-        xs={12}
+        xs={11}
         md={6}
       >
         <Card>
@@ -50,10 +50,23 @@ const LandingPage = ({ onLogin }: Props) => {
       </Grid>
       <Grid
         item
+        container
+        justifyContent='center'
         xs={12}
       >
-        
-        <Login isLoggedIn={async () => onLogin()} />
+        <Grid
+          item
+          xs={11}
+          md={6}
+        >
+          <Typography
+            variant="body2"
+            color="text.secondary"
+          >
+            To get started use one of the login options below.
+          </Typography>
+          <Login isLoggedIn={async () => onLogin()} />
+        </Grid>
       </Grid>
     </Grid>
   )

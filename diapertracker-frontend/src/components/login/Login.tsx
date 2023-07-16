@@ -19,19 +19,10 @@ const Login = ({ isLoggedIn: callback }: Props) => {
     }
   }
   return (
-    <Grid
-      container
-      justifyContent="center"
-    >
-      <Grid
-        item
-        xs={11}
-        md={6}
-      >
-        <GoogleLogin onResponse={handleCallback('google')} />
-        <FacebookLogin onResponse={handleCallback('facebook')} />
-      </Grid>
-    </Grid>
+    <>
+      <GoogleLogin onResponse={handleCallback('google')} />
+      <FacebookLogin onResponse={handleCallback('facebook')} />
+    </>
   )
 }
 
