@@ -23,7 +23,8 @@ const FacebookLogin = ({ onResponse }: Props) => {
     )
   }
 
-  useEffect(() => {
+  const initialize = () => {
+    if (!window.FB) return
     FB.getLoginStatus(function (response) {
       if (response.status === 'connected') {
         onResponse(response.authResponse.accessToken)
@@ -31,6 +32,9 @@ const FacebookLogin = ({ onResponse }: Props) => {
         setLoaded(true)
       }
     })
+  }
+  useEffect(() => {
+    initialize()
   }, [])
 
   if (!isLoaded) {

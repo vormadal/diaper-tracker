@@ -8,8 +8,10 @@ type Props = {
 
 const GoogleLogin = ({ onResponse }: Props) => {
   const [client, setClient] = useState<google.accounts.oauth2.TokenClient>()
-
-  useEffect(() => {
+  const [initialized, setInitialized] = useState(false)
+  const initialize = () => {
+    if (!window.google || initialized) return
+    setInitialized(true)
     const tokenClient = google.accounts.oauth2.initTokenClient({
       client_id: process.env.REACT_APP_GOOGLE_CLIENT_ID!,
       scope: 'https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile',
@@ -19,6 +21,11 @@ const GoogleLogin = ({ onResponse }: Props) => {
     })
 
     setClient(tokenClient)
+  }
+  useEffect(() => {
+    const script = document.getElementById('google-login-script')
+    script?.addEventListener('load', initialize)
+    initialize()
   }, [])
 
   const onClick = () => {
