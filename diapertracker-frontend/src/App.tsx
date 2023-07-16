@@ -13,6 +13,8 @@ import { useToast } from './hooks/useToast'
 import HomePage from './pages/HomePage'
 import LandingPage from './pages/LandingPage'
 import Spinner from './components/Spinner'
+import PrivacyPage from './pages/PrivacyPage'
+import TermsPage from './pages/TermsPage'
 
 function App() {
   const [user, refreshUser] = useData(() => Api.me())
@@ -36,10 +38,6 @@ function App() {
   }
   if (user.loading) return <Spinner />
 
-  if (!user.data?.isLoggedIn) {
-    return <LandingPage onLogin={refreshUser} />
-  }
-
   return (
     <Router>
       <Toast>
@@ -50,7 +48,15 @@ function App() {
               <Routes>
                 <Route
                   path="/"
-                  element={<HomePage />}
+                  element={user.data?.isLoggedIn ? <HomePage /> : <LandingPage onLogin={refreshUser} />}
+                />
+                <Route
+                  path="privacy"
+                  element={<PrivacyPage />}
+                />
+                <Route
+                  path="terms"
+                  element={<TermsPage />}
                 />
               </Routes>
             </>

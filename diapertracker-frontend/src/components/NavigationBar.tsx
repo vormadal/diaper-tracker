@@ -30,6 +30,14 @@ const NavbarConfig = {
     {
       name: 'Hjem',
       path: '/'
+    },
+    {
+      name: 'Privacy',
+      path: '/privacy'
+    },
+    {
+      name: 'Terms',
+      path: '/terms'
     }
   ],
   settings: [
