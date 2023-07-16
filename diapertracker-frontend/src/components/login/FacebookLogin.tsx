@@ -1,12 +1,14 @@
 import { FacebookSharp as Facebook } from '@mui/icons-material'
-import { Button } from '@mui/material'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
+import LoginButton from './LoginButton'
 
 type Props = {
   onResponse: (token: string) => Promise<void>
 }
 
 const FacebookLogin = ({ onResponse }: Props) => {
+  const [isLoaded, setLoaded] = useState(false)
+
   const onClick = () => {
     FB.login(
       (e: fb.StatusResponse) => {
@@ -16,38 +18,35 @@ const FacebookLogin = ({ onResponse }: Props) => {
       },
       {
         enable_profile_selector: true,
-        scope: 'email,public_profile'
+        scope: 'public_profile,email'
       }
     )
   }
 
   useEffect(() => {
-    FB.init({
-      version: 'v17.0',
-      appId: process.env.REACT_APP_FB_APP_ID,
-      status: true,
-      xfbml: true
+    FB.getLoginStatus(function (response) {
+      if (response.status === 'connected') {
+        onResponse(response.authResponse.accessToken)
+      } else {
+        setLoaded(true)
+      }
     })
   }, [])
 
+  if (!isLoaded) {
+    return null
+  }
+
   return (
     <>
-      <Button
-        startIcon={<Facebook />}
-        fullWidth
-        sx={{
-          color: 'rgb(60, 90, 154)',
-          borderColor: 'rgb(60, 90, 154)',
-          backgroundColor: 'white',
-          ':hover': {
-            color: 'white',
-            backgroundColor: 'rgb(60, 90, 154)'
-          }
-        }}
+      <LoginButton
+        primaryColor="rgb(60, 90, 154)"
+        secondaryColor="white"
+        icon={<Facebook />}
         onClick={onClick}
       >
         Login with Facebook
-      </Button>
+      </LoginButton>
     </>
   )
 }

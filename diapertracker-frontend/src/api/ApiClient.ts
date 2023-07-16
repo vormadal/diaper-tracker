@@ -797,6 +797,8 @@ export class UserProfile implements IUserProfile {
     fullName?: string;
     email?: string;
     imageUrl?: string;
+    /** Identity Provider. e.g. facebook or google */
+    idp?: string;
 
     constructor(data?: IUserProfile) {
         if (data) {
@@ -815,6 +817,7 @@ export class UserProfile implements IUserProfile {
             this.fullName = _data["fullName"];
             this.email = _data["email"];
             this.imageUrl = _data["imageUrl"];
+            this.idp = _data["idp"];
         }
     }
 
@@ -833,6 +836,7 @@ export class UserProfile implements IUserProfile {
         data["fullName"] = this.fullName;
         data["email"] = this.email;
         data["imageUrl"] = this.imageUrl;
+        data["idp"] = this.idp;
         return data;
     }
 }
@@ -844,6 +848,8 @@ export interface IUserProfile {
     fullName?: string;
     email?: string;
     imageUrl?: string;
+    /** Identity Provider. e.g. facebook or google */
+    idp?: string;
 }
 
 export class ApiException extends Error {

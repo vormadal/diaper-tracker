@@ -1,8 +1,7 @@
 ﻿using DiaperTracker.Domain;
 using DiaperTracker.Services.Abstractions;
-using Google.Apis.Auth;
+using Google.Apis.PeopleService.v1;
 using Microsoft.Extensions.Options;
-using static Google.Apis.Auth.GoogleJsonWebSignature;
 
 namespace DiaperTracker.Services
 {
@@ -15,27 +14,32 @@ namespace DiaperTracker.Services
             _options = options;
         }
 
-        public async Task<ExternalLoginPayload> ValidateAsync(string token)
+        public Task<ExternalLoginPayload> ValidateAsync(string token)
         {
-
-            var payload = await GoogleJsonWebSignature.ValidateAsync(token, new ValidationSettings
+            var service = new PeopleServiceService(new Google.Apis.Services.BaseClientService.Initializer
             {
-                Audience = new string[] { _options.Value.ClientId },
+                ApiKey = _options.Value.ApiKey
             });
 
-            return new ExternalLoginPayload
+            var request = service.People.Get("people/me");
+            request.PersonFields = "names,emailAddresses,photos,externalIds";
+            request.AccessToken = token;
+            var profile = request.Execute();           
+
+            return Task.FromResult(new ExternalLoginPayload
             {
-                Id = payload.Subject,
-                FirstName = payload.GivenName,
-                Email = payload.Email,
-                FullName = payload.Name,
-                ImageUrl = payload.Picture
-            };
+                Email = profile.EmailAddresses.First().Value,
+                FirstName = profile.Names.First().GivenName,
+                FullName = profile.Names.First().DisplayName,
+                ImageUrl = profile.Photos.First().Url,
+                // the resourcename usually looks something like this "people/123123123" we only want the last part
+                Id = profile.ResourceName.Split('/').Last()
+            });
         }
     }
 
     public class GoogleOptions
     {
-        public string ClientId { get; set; }
+        public string ApiKey { get; internal set; }
     }
 }

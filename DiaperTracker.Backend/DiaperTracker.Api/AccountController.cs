@@ -37,9 +37,10 @@ public class AccountController : ControllerBase
         if (isSignedIn)
         {
             var user = await _userManager.FindByIdAsync(User.Identity.GetSubjectId());
-
+            
             var profile = user.Adapt<UserProfile>();
             profile.IsLoggedIn = true;
+            profile.Idp = User.Identity.GetIdentityProvider();
             return profile;
         }
 

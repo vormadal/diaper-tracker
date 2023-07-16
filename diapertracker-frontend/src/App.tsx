@@ -1,17 +1,18 @@
 import { ThemeProvider } from '@mui/material'
+import { useEffect } from 'react'
 import { Route, HashRouter as Router, Routes } from 'react-router-dom'
 import './App.css'
-import Demo from './components/Demo'
-import { theme } from './config/Theme'
-import Toast from './components/Toast'
-import { useData } from './hooks/useData'
 import { Api } from './api'
-import { useToast } from './hooks/useToast'
-import { useEffect } from 'react'
-import LoginPage from './pages/LoginPage'
 import { UserProfile } from './api/ApiClient'
-import UserContext from './contexts/UserContext'
 import NavigationBar from './components/NavigationBar'
+import Toast from './components/Toast'
+import { theme } from './config/Theme'
+import UserContext from './contexts/UserContext'
+import { useData } from './hooks/useData'
+import { useToast } from './hooks/useToast'
+import HomePage from './pages/HomePage'
+import LandingPage from './pages/LandingPage'
+import Spinner from './components/Spinner'
 
 function App() {
   const [user, refreshUser] = useData(() => Api.me())
@@ -23,13 +24,20 @@ function App() {
   }, [user.error])
 
   const handleLogout = async () => {
-    await Api.signout()
-    await refreshUser()
+    if (user.data?.idp === 'facebook') {
+      FB.logout(() => {
+        Api.signout().then(refreshUser)
+      })
+    }
+    if (user.data?.idp === 'google') {
+      await Api.signout()
+      await refreshUser()
+    }
   }
-  if (user.loading) return null
+  if (user.loading) return <Spinner />
 
   if (!user.data?.isLoggedIn) {
-    return <LoginPage callback={refreshUser} />
+    return <LandingPage onLogin={refreshUser} />
   }
 
   return (
@@ -42,7 +50,7 @@ function App() {
               <Routes>
                 <Route
                   path="/"
-                  element={<Demo />}
+                  element={<HomePage />}
                 />
               </Routes>
             </>

@@ -1,11 +1,9 @@
 import { Api } from '../api'
+import BigActionCard from '../components/BigActionCard'
+import Loading from '../components/Loading'
 import { useData } from '../hooks/useData'
-import BigActionCard from './BigActionCard'
-import Loading from './Loading'
 
-type Props = {}
-
-const Demo = ({}: Props) => {
+const HomePage = () => {
   const [types] = useData(() => Api.getAllTypes())
   return (
     <>
@@ -25,4 +23,4 @@ const Demo = ({}: Props) => {
   )
 }
 
-export default Demo
+export default HomePage

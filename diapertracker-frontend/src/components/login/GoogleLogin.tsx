@@ -1,41 +1,41 @@
-import { useEffect } from 'react'
+import { Google } from '@mui/icons-material'
+import { useEffect, useState } from 'react'
+import LoginButton from './LoginButton'
 
 type Props = {
   onResponse: (token: string) => Promise<void>
 }
 
 const GoogleLogin = ({ onResponse }: Props) => {
-  useEffect(() => {
-    // this is a 'fake' div which will not be shown anywhere
-    const div = window.document.getElementById('google_login')
-    if (!div) {
-      return
-    }
-    async function handleCredentialResponse(response: google.accounts.id.CredentialResponse) {
-      onResponse(response.credential)
-    }
+  const [client, setClient] = useState<google.accounts.oauth2.TokenClient>()
 
-    google.accounts.id.initialize({
+  useEffect(() => {
+    const tokenClient = google.accounts.oauth2.initTokenClient({
       client_id: process.env.REACT_APP_GOOGLE_CLIENT_ID!,
-      callback: handleCredentialResponse
+      scope: 'https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile',
+      callback: (response) => {
+        onResponse(response.access_token)
+      }
     })
 
-    google.accounts.id.renderButton(
-      div,
-      {
-        type: 'standard',
-        shape: 'square',
-        width: '100%',
-        text: 'signin',
-        theme: 'outline',
-        size: 'large',
-        logo_alignment: 'left'
-      } // customization attributes
-    )
+    setClient(tokenClient)
   }, [])
+
+  const onClick = () => {
+    client?.requestAccessToken()
+  }
+
+  if (!client) return null
   return (
     <>
-      <div id="google_login"></div>
+      <LoginButton
+        icon={<Google />}
+        primaryColor="rgb(219,68,55)"
+        secondaryColor="white"
+        onClick={onClick}
+      >
+        Login with Google
+      </LoginButton>
     </>
   )
 }

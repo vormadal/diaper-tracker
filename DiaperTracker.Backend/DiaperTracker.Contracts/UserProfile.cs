@@ -12,4 +12,9 @@ public class UserProfile
     public string Email { get; set; }
 
     public string ImageUrl { get; set; }
+
+    /// <summary>
+    /// Identity Provider. e.g. facebook or google
+    /// </summary>
+    public string Idp { get; set; }
 }
