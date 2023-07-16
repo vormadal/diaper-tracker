@@ -19,6 +19,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<ITaskTypeRepository, TaskTypeRepository>();
         services.AddScoped<ITaskRecordRepository, TaskRecordRepository>();
+        services.AddScoped<IProjectRepository, ProjectRepository>();
+        services.AddScoped<IProjectMemberRepository, ProjectMemberRepository>();
     }
 
     public static AuthenticationBuilder AddIdentity(this IServiceCollection services)

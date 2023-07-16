@@ -10,5 +10,6 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ITaskTypeService, TaskTypeService>();
         services.AddScoped<ITaskRecordService, TaskRecordService>();
         services.AddScoped<ILoginServiceFactory, LoginServiceFactory>();
+        services.AddScoped<IProjectService, ProjectService>();
     }
 }
