@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace DiaperTracker.Presentation.OpenApi.Controllers;
 
 [ApiController]
-
+[Authorize]
 [Route("api/tasks")]
 [Consumes("application/json")]
 [Produces("application/json")]
@@ -22,15 +22,12 @@ public class TaskController : ControllerBase
 
     [HttpGet]
     public async Task<IEnumerable<TaskRecordDto>> GetTasks(
+        [FromQuery] string? project,
         [FromQuery] string? type,
         [FromQuery] int? count,
         CancellationToken token)
     {
-        if(type == null)
-        {
-            return await _taskService.GetAll(count, token);
-        }
-        return await _taskService.GetByType(type, count, token);
+        return await _taskService.GetByProjectAndType(project, type, count, token);
     }
 
     /// <summary>

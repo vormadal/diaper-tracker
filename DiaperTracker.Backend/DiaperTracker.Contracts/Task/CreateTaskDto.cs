@@ -15,4 +15,6 @@ public class CreateTaskDto
     [Required]
     public string TypeId { get; set; }
 
+    [Required]
+    public string ProjectId { get; set; }
 }

@@ -10,6 +10,10 @@ public class TaskRecord
 
     public virtual TaskType Type { get; set; }
 
+    public string ProjectId { get; set; }
+
+    public virtual Project Project { get; set; }
+
     public string CreatedById { get; set; }
 
     public virtual ApplicationUser CreatedBy { get; set; }

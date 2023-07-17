@@ -2,10 +2,8 @@
 
 namespace DiaperTracker.Contracts.Person;
 
-public class TaskTypeDto
+public class CreateTaskType
 {
-    [Required]
-    public string Id { get; set; }
 
     [Required]
     public string DisplayName { get; set; }

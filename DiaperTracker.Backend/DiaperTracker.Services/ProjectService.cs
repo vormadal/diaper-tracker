@@ -30,6 +30,7 @@ public class ProjectService : IProjectService
             Project = toCreate
         };
 
+
         await _projectMemberRepository.Create(admin, token);
         await _projectRepository.Create(toCreate, token);
         await _unitOfWork.SaveChangesAsync();
@@ -46,7 +47,8 @@ public class ProjectService : IProjectService
             throw new EntityNotFoundException($"Membership in project {projectId} and user {userId} does not exist");
         }
 
-        return membership.Project.Adapt<ProjectDto>();
+        var project = await _projectRepository.FindById(projectId, token);
+        return project.Adapt<ProjectDto>();
     }
 
     public async Task<IEnumerable<ProjectDto>> GetByUser(string userId, CancellationToken token = default)

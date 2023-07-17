@@ -348,12 +348,17 @@ export class ApiClient {
     }
 
     /**
+     * @param project (optional) 
      * @param type (optional) 
      * @param count (optional) 
      * @return Success
      */
-    getTasks(type: string | undefined, count: number | undefined, cancelToken?: CancelToken | undefined): Promise<TaskRecordDto[]> {
+    getTasks(project: string | undefined, type: string | undefined, count: number | undefined, cancelToken?: CancelToken | undefined): Promise<TaskRecordDto[]> {
         let url_ = this.baseUrl + "/api/tasks?";
+        if (project === null)
+            throw new Error("The parameter 'project' cannot be null.");
+        else if (project !== undefined)
+            url_ += "project=" + encodeURIComponent("" + project) + "&";
         if (type === null)
             throw new Error("The parameter 'type' cannot be null.");
         else if (type !== undefined)
@@ -581,16 +586,21 @@ export class ApiClient {
     }
 
     /**
+     * @param body (optional) 
      * @return Success
      */
-    getAllTypes( cancelToken?: CancelToken | undefined): Promise<TaskTypeDto[]> {
+    createTaskType(body: CreateTaskType | undefined, cancelToken?: CancelToken | undefined): Promise<TaskTypeDto> {
         let url_ = this.baseUrl + "/api/task-types";
         url_ = url_.replace(/[?&]$/, "");
 
+        const content_ = JSON.stringify(body);
+
         let options_: AxiosRequestConfig = {
-            method: "GET",
+            data: content_,
+            method: "POST",
             url: url_,
             headers: {
+                "Content-Type": "application/json",
                 "Accept": "application/json"
             },
             cancelToken
@@ -603,11 +613,11 @@ export class ApiClient {
                 throw _error;
             }
         }).then((_response: AxiosResponse) => {
-            return this.processGetAllTypes(_response);
+            return this.processCreateTaskType(_response);
         });
     }
 
-    protected processGetAllTypes(response: AxiosResponse): Promise<TaskTypeDto[]> {
+    protected processCreateTaskType(response: AxiosResponse): Promise<TaskTypeDto> {
         const status = response.status;
         let _headers: any = {};
         if (response.headers && typeof response.headers === "object") {
@@ -621,21 +631,14 @@ export class ApiClient {
             const _responseText = response.data;
             let result200: any = null;
             let resultData200  = _responseText;
-            if (Array.isArray(resultData200)) {
-                result200 = [] as any;
-                for (let item of resultData200)
-                    result200!.push(TaskTypeDto.fromJS(item));
-            }
-            else {
-                result200 = <any>null;
-            }
-            return Promise.resolve<TaskTypeDto[]>(result200);
+            result200 = TaskTypeDto.fromJS(resultData200);
+            return Promise.resolve<TaskTypeDto>(result200);
 
         } else if (status !== 200 && status !== 204) {
             const _responseText = response.data;
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
         }
-        return Promise.resolve<TaskTypeDto[]>(null as any);
+        return Promise.resolve<TaskTypeDto>(null as any);
     }
 
     /**
@@ -706,7 +709,7 @@ export class ApiClient {
 }
 
 export class CreateProjectDto implements ICreateProjectDto {
-    name?: string;
+    name!: string;
 
     constructor(data?: ICreateProjectDto) {
         if (data) {
@@ -738,13 +741,14 @@ export class CreateProjectDto implements ICreateProjectDto {
 }
 
 export interface ICreateProjectDto {
-    name?: string;
+    name: string;
 }
 
 /** DTO to be used when creating a new task */
 export class CreateTaskDto implements ICreateTaskDto {
     /** Task type ID */
     typeId!: string;
+    projectId!: string;
 
     constructor(data?: ICreateTaskDto) {
         if (data) {
@@ -758,6 +762,7 @@ export class CreateTaskDto implements ICreateTaskDto {
     init(_data?: any) {
         if (_data) {
             this.typeId = _data["typeId"];
+            this.projectId = _data["projectId"];
         }
     }
 
@@ -771,6 +776,7 @@ export class CreateTaskDto implements ICreateTaskDto {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["typeId"] = this.typeId;
+        data["projectId"] = this.projectId;
         return data;
     }
 }
@@ -779,6 +785,51 @@ export class CreateTaskDto implements ICreateTaskDto {
 export interface ICreateTaskDto {
     /** Task type ID */
     typeId: string;
+    projectId: string;
+}
+
+export class CreateTaskType implements ICreateTaskType {
+    displayName!: string;
+    icon!: string;
+    projectId!: string;
+
+    constructor(data?: ICreateTaskType) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.displayName = _data["displayName"];
+            this.icon = _data["icon"];
+            this.projectId = _data["projectId"];
+        }
+    }
+
+    static fromJS(data: any): CreateTaskType {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateTaskType();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["displayName"] = this.displayName;
+        data["icon"] = this.icon;
+        data["projectId"] = this.projectId;
+        return data;
+    }
+}
+
+export interface ICreateTaskType {
+    displayName: string;
+    icon: string;
+    projectId: string;
 }
 
 export class ExternalLoginRequest implements IExternalLoginRequest {
@@ -818,8 +869,9 @@ export interface IExternalLoginRequest {
 }
 
 export class ProjectDto implements IProjectDto {
-    id?: string;
-    name?: string;
+    id!: string;
+    name!: string;
+    taskTypes!: TaskTypeDto[];
 
     constructor(data?: IProjectDto) {
         if (data) {
@@ -828,12 +880,20 @@ export class ProjectDto implements IProjectDto {
                     (<any>this)[property] = (<any>data)[property];
             }
         }
+        if (!data) {
+            this.taskTypes = [];
+        }
     }
 
     init(_data?: any) {
         if (_data) {
             this.id = _data["id"];
             this.name = _data["name"];
+            if (Array.isArray(_data["taskTypes"])) {
+                this.taskTypes = [] as any;
+                for (let item of _data["taskTypes"])
+                    this.taskTypes!.push(TaskTypeDto.fromJS(item));
+            }
         }
     }
 
@@ -848,13 +908,19 @@ export class ProjectDto implements IProjectDto {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
         data["name"] = this.name;
+        if (Array.isArray(this.taskTypes)) {
+            data["taskTypes"] = [];
+            for (let item of this.taskTypes)
+                data["taskTypes"].push(item.toJSON());
+        }
         return data;
     }
 }
 
 export interface IProjectDto {
-    id?: string;
-    name?: string;
+    id: string;
+    name: string;
+    taskTypes: TaskTypeDto[];
 }
 
 /** A representation of a persisted task including type details */
@@ -917,6 +983,7 @@ export class TaskTypeDto implements ITaskTypeDto {
     id!: string;
     displayName!: string;
     icon!: string;
+    projectId!: string;
 
     constructor(data?: ITaskTypeDto) {
         if (data) {
@@ -932,6 +999,7 @@ export class TaskTypeDto implements ITaskTypeDto {
             this.id = _data["id"];
             this.displayName = _data["displayName"];
             this.icon = _data["icon"];
+            this.projectId = _data["projectId"];
         }
     }
 
@@ -947,6 +1015,7 @@ export class TaskTypeDto implements ITaskTypeDto {
         data["id"] = this.id;
         data["displayName"] = this.displayName;
         data["icon"] = this.icon;
+        data["projectId"] = this.projectId;
         return data;
     }
 }
@@ -955,10 +1024,11 @@ export interface ITaskTypeDto {
     id: string;
     displayName: string;
     icon: string;
+    projectId: string;
 }
 
 export class UpdateTaskDto implements IUpdateTaskDto {
-    date?: Date;
+    date!: Date;
 
     constructor(data?: IUpdateTaskDto) {
         if (data) {
@@ -990,12 +1060,12 @@ export class UpdateTaskDto implements IUpdateTaskDto {
 }
 
 export interface IUpdateTaskDto {
-    date?: Date;
+    date: Date;
 }
 
 export class UserDto implements IUserDto {
     id!: string;
-    fullName?: string;
+    fullName!: string;
     firstName?: string;
 
     constructor(data?: IUserDto) {
@@ -1033,7 +1103,7 @@ export class UserDto implements IUserDto {
 
 export interface IUserDto {
     id: string;
-    fullName?: string;
+    fullName: string;
     firstName?: string;
 }
 

@@ -10,6 +10,14 @@ internal class ProjectRepository : RepositoryBase<Project>, IProjectRepository
     {
     }
 
+    async Task<Project?> IRepositoryBase<Project>.FindById(string id, CancellationToken token)
+    {
+        return await _set.Where(x => x.Id == id)
+            .Include(x => x.TaskTypes)
+            .Include(x => x.Members)
+            .FirstAsync(token);
+    }
+
     public async Task<IEnumerable<Project>> FindByUser(string userId, CancellationToken token = default)
     {
         var memberships = await _context.Members.Where(x => x.UserId == userId)

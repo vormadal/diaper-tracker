@@ -12,7 +12,7 @@ import {
   ListItemText,
   Typography
 } from '@mui/material'
-import { format, differenceInMinutes } from 'date-fns'
+import { differenceInMinutes } from 'date-fns'
 import { useContext, useEffect, useState } from 'react'
 import { Api } from '../api'
 import { CreateTaskDto, TaskTypeDto } from '../api/ApiClient'
@@ -47,7 +47,10 @@ const BigActionCard = ({ taskType }: Props) => {
   const createTask = async () => {
     setDisabled(true)
     try {
-      await Api.createTask(new CreateTaskDto({ typeId: taskType.id }))
+      await Api.createTask(new CreateTaskDto({ 
+        typeId: taskType.id,
+        projectId: taskType.projectId
+      }))
       updateTasks()
       toast.success(`${taskType.displayName} er registreret`)
     } finally {

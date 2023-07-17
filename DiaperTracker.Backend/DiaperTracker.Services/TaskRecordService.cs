@@ -10,16 +10,24 @@ namespace DiaperTracker.Services;
 internal class TaskRecordService : ITaskRecordService
 {
     private readonly ITaskRecordRepository _taskRepository;
+    private readonly IProjectRepository _projectRepository;
     private readonly IUnitOfWork _unitOfWork;
 
-    public TaskRecordService(ITaskRecordRepository taskRepository, IUnitOfWork unitOfWork)
+    public TaskRecordService(ITaskRecordRepository taskRepository, IUnitOfWork unitOfWork, IProjectRepository projectRepository)
     {
         _taskRepository = taskRepository;
         _unitOfWork = unitOfWork;
+        _projectRepository = projectRepository;
     }
 
     public async Task<TaskRecordDto> CreateTask(CreateTaskDto task, string userId, CancellationToken token = default)
     {
+        var project = await _projectRepository.FindById(task.ProjectId, token);
+        if(project == null || !project.TaskTypes.Any(x => x.Id == task.TypeId))
+        {
+            throw new Exception("Project or task type is incorrect");
+        }
+
         var record = task.Adapt<TaskRecord>();
         record.Date = DateTime.UtcNow;
         record.CreatedById = userId;
@@ -50,9 +58,9 @@ internal class TaskRecordService : ITaskRecordService
         return query.ToList().Adapt<IEnumerable<TaskRecordDto>>();
     }
 
-    public async Task<IEnumerable<TaskRecordDto>> GetByType(string typeId, int? count = null, CancellationToken token = default)
+    public async Task<IEnumerable<TaskRecordDto>> GetByProjectAndType(string? projectId, string? typeId, int? count = null, CancellationToken token = default)
     {
-        var results = await _taskRepository.FindByType(typeId, count);
+        var results = await _taskRepository.FindByProjectAndType(projectId, typeId, count, token);
         return results.Adapt<IEnumerable<TaskRecordDto>>();
     }
 

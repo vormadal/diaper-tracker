@@ -90,6 +90,8 @@ app.UseAuthentication();
 app.UseIdentityServer();
 app.UseAuthorization();
 
+//TODO add exception handling middleware
+
 Console.WriteLine($"Starting in environemnt: {app.Environment.EnvironmentName}");
 if (app.Environment.IsDevelopment())
 {
