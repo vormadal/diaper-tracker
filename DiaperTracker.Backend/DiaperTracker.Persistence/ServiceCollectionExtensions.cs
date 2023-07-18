@@ -19,6 +19,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<ITaskTypeRepository, TaskTypeRepository>();
         services.AddScoped<ITaskRecordRepository, TaskRecordRepository>();
+        services.AddScoped<IProjectRepository, ProjectRepository>();
+        services.AddScoped<IProjectMemberRepository, ProjectMemberRepository>();
     }
 
     public static AuthenticationBuilder AddIdentity(this IServiceCollection services)
@@ -52,14 +54,12 @@ public static class ServiceCollectionExtensions
             return;
         }
 
-        var type1 = new TaskType("Bleskift", "diaper");
-        var type2 = new TaskType("Spisning", "feeding");
 
-        await context.TaskTypes.AddRangeAsync(new[]
-        {
-            type1, type2
-        });
+        //await context.TaskTypes.AddRangeAsync(new[]
+        //{
 
-        await context.SaveChangesAsync();
+        //});
+
+        //await context.SaveChangesAsync();
     }
 }

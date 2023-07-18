@@ -5,6 +5,7 @@ using DiaperTracker.Presentation.OpenApi;
 using DiaperTracker.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Duende.IdentityServer;
+using DiaperTracker.Api;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
@@ -16,7 +17,10 @@ builder.Services.Configure<GoogleOptions>(x =>
 });
 
 builder.Services.AddRepositories(builder.Configuration.GetConnectionString("Database"));
-builder.Services.AddControllers()
+builder.Services.AddControllers(options =>
+{
+    options.Filters.Add<HttpResponseExceptionFilter>();
+})
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.Converters.Add(new DateTimeConverter());
@@ -104,6 +108,8 @@ if (app.Environment.IsDevelopment())
         c.AllowAnyHeader();
         c.AllowCredentials();
     });
+
+    app.UseExceptionHandler("/error-development");
 }
 else
 {
@@ -112,6 +118,7 @@ else
     options.DefaultFileNames.Add("index.html");
     app.UseDefaultFiles(options);
     app.UseStaticFiles();
+    app.UseExceptionHandler("/error");
 }
 
 using (var scope = app.Services.CreateScope())

@@ -1,8 +1,6 @@
-import { Grid } from '@mui/material'
 import { Api } from '../../api'
 import { ExternalLoginRequest } from '../../api/ApiClient'
 import { useToast } from '../../hooks/useToast'
-import FacebookLogin from './FacebookLogin'
 import GoogleLogin from './GoogleLogin'
 type Props = {
   isLoggedIn: () => Promise<void>
@@ -21,7 +19,8 @@ const Login = ({ isLoggedIn: callback }: Props) => {
   return (
     <>
       <GoogleLogin onResponse={handleCallback('google')} />
-      <FacebookLogin onResponse={handleCallback('facebook')} />
+      {/* facebook login requires business verification before it can go live :( */}
+      {/* <FacebookLogin onResponse={handleCallback('facebook')} /> */}
     </>
   )
 }

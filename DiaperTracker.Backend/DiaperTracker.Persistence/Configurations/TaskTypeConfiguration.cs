@@ -15,5 +15,10 @@ public class TaskTypeConfiguration : IEntityTypeConfiguration<TaskType>
 
         builder.Property(x => x.Icon).IsRequired();
         builder.Property(x => x.DisplayName).IsRequired();
+
+        builder.HasOne(x => x.Project)
+            .WithMany(x => x.TaskTypes)
+            .HasForeignKey(x => x.ProjectId);
+            //.IsRequired();
     }
 }

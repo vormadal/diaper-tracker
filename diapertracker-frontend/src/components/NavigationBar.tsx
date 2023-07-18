@@ -12,7 +12,7 @@ import {
   Theme,
   Toolbar,
   Tooltip,
-  Typography,
+  Typography
 } from '@mui/material'
 import { useContext, useState } from 'react'
 import { Link } from 'react-router-dom'
@@ -32,12 +32,8 @@ const NavbarConfig = {
       path: '/'
     },
     {
-      name: 'Privacy',
-      path: '/privacy'
-    },
-    {
-      name: 'Terms',
-      path: '/terms'
+      name: 'Settings',
+      path: '/settings'
     }
   ],
   settings: [
@@ -129,6 +125,8 @@ const NavigationBar = ({ handleLogout }: Props) => {
               {NavbarConfig.pages.map((page) => (
                 <MenuItem
                   key={page.name}
+                  component={Link}
+                  to={page.path}
                   onClick={handleCloseNavMenu}
                 >
                   <Typography textAlign="center">{page.name}</Typography>

@@ -1,12 +1,14 @@
 ﻿using DiaperTracker.Contracts.Person;
 using DiaperTracker.Contracts.Task;
 using DiaperTracker.Services.Abstractions;
+using Duende.IdentityServer.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DiaperTracker.Presentation.OpenApi.Controllers;
 
 [ApiController]
+[Authorize]
 [Route("api/task-types")]
 [Produces("application/json")]
 [Consumes("application/json")]
@@ -22,10 +24,10 @@ public class TaskTypeController : ControllerBase
         _taskRecordService = taskRecordService;
     }
 
-    [HttpGet]
-    public async Task<IEnumerable<TaskTypeDto>> GetAllTypes(CancellationToken token)
+    [HttpPost]
+    public async Task<TaskTypeDto> CreateTaskType([FromBody] CreateTaskType taskType, CancellationToken token)
     {
-        return await _taskTypeService.GetAll(token);
+        return await _taskTypeService.Create(taskType, User.GetSubjectId(), token);
     }
 
     [HttpGet("{id}/tasks")]
@@ -34,6 +36,6 @@ public class TaskTypeController : ControllerBase
         [FromQuery] int? count,
         CancellationToken token)
     {
-        return await _taskRecordService.GetByType(id, count, token);
+        return await _taskRecordService.GetByProjectAndType(null, id, count, token);
     }
 }

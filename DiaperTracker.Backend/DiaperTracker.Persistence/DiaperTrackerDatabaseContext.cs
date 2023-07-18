@@ -13,6 +13,10 @@ public class DiaperTrackerDatabaseContext : ApiAuthorizationDbContext<Applicatio
 
     public DbSet<TaskRecord> Tasks { get; set; }
 
+    public DbSet<Project> Projects { get; set; }
+
+    public DbSet<ProjectMember> Members { get; set; }
+
     public DiaperTrackerDatabaseContext(DbContextOptions options, IOptions<OperationalStoreOptions> operationalStoreOptions) : base(options, operationalStoreOptions)
     {
     }

@@ -15,6 +15,8 @@ import LandingPage from './pages/LandingPage'
 import Spinner from './components/Spinner'
 import PrivacyPage from './pages/PrivacyPage'
 import TermsPage from './pages/TermsPage'
+import SettingsPage from './pages/SettingsPage'
+import ProjectSettingsPage from './pages/ProjectSettingsPage'
 
 function App() {
   const [user, refreshUser] = useData(() => Api.me())
@@ -57,6 +59,14 @@ function App() {
                 <Route
                   path="terms"
                   element={<TermsPage />}
+                />
+                <Route
+                  path="settings/:id"
+                  element={<ProjectSettingsPage />}
+                />
+                <Route
+                  path="settings"
+                  element={<SettingsPage />}
                 />
               </Routes>
             </>

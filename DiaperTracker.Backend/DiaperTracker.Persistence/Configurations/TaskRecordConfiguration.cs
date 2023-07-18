@@ -25,5 +25,11 @@ public class TaskRecordConfiguration : IEntityTypeConfiguration<TaskRecord>
             .WithMany(x => x.Records)
             .HasForeignKey(x => x.TypeId)
             .IsRequired();
+
+        builder
+            .HasOne(x => x.Project)
+            .WithMany(x => x.Tasks)
+            .HasForeignKey(x => x.ProjectId);
+            //.IsRequired();
     }
 }

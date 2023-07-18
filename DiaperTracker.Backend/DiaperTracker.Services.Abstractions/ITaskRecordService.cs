@@ -10,7 +10,7 @@ public interface ITaskRecordService
 
     Task DeleteTask(string id, CancellationToken token = default);
 
-    Task<IEnumerable<TaskRecordDto>> GetByType(string typeId, int? count = null, CancellationToken token = default);
+    Task<IEnumerable<TaskRecordDto>> GetByProjectAndType(string? project, string? typeId, int? count = null, CancellationToken token = default);
     
     Task<IEnumerable<TaskRecordDto>> GetAll(int? count, CancellationToken token = default);
 }
