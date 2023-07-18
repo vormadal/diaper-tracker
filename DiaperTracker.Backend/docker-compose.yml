@@ -11,6 +11,8 @@ services:
     restart: always
     ports:
      - 5432:5432
+    volumes:
+      - pgdata:/var/lib/postgresql/data
     environment:
         POSTGRES_PASSWORD: example
   pgadmin:
@@ -21,3 +23,6 @@ services:
     environment:
         PGADMIN_DEFAULT_EMAIL: runivormadal@gmail.com
         PGADMIN_DEFAULT_PASSWORD: example
+volumes:
+  pgdata:
+    
