@@ -1,25 +1,21 @@
-import { Grid, Typography } from '@mui/material'
+import { FormControl, Grid, InputLabel, MenuItem, Select, Typography } from '@mui/material'
 import { Api } from '../api'
+import { CreateProjectDto, CreateTaskType } from '../api/ApiClient'
 import BigActionCard from '../components/BigActionCard'
 import Loading from '../components/Loading'
-import { useData } from '../hooks/useData'
 import ProjectForm from '../components/project/ProjectForm'
-import { useProject } from '../hooks/useProject'
-import { CreateProjectDto, CreateTaskType } from '../api/ApiClient'
-import { useToast } from '../hooks/useToast'
 import TaskTypeForm from '../components/taskType/TaskTypeForm'
+import { useData } from '../hooks/useData'
+import { useProject } from '../hooks/useProject'
+import { useToast } from '../hooks/useToast'
 
 const HomePage = () => {
   const toast = useToast()
   const [projects, updateProjects] = useData(() => Api.getMyProjects())
   const [project, setProject] = useProject()
 
-  const createProject = async (name: string) => {
-    const created = await Api.createProject(
-      new CreateProjectDto({
-        name: name
-      })
-    )
+  const createProject = async (project: CreateProjectDto) => {
+    const created = await Api.createProject(project)
 
     toast.success(`${created.name} has been registered`)
     await setProject(created.id!)
@@ -56,7 +52,27 @@ const HomePage = () => {
                 </>
               )}
 
-              {!!data.length && <Typography variant="h5">{project?.name}</Typography>}
+              {!!data.length && (
+                <>
+                  {data.length > 1 ? (
+                    <FormControl fullWidth>
+                      <InputLabel id="project-select-label"></InputLabel>
+                      <Select
+                        labelId="project-select-label"
+                        id="project-select"
+                        value={project?.id || ''}
+                        onChange={(e) => setProject(e.target.value)}
+                      >
+                        {data.map((x) => (
+                          <MenuItem key={x.id} selected={x.id === project?.id} value={x.id}>{x.name}</MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  ) : (
+                    <Typography variant="h5">{project?.name}</Typography>
+                  )}
+                </>
+              )}
             </>
           )}
         </Loading>

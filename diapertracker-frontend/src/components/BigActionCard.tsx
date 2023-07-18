@@ -47,10 +47,12 @@ const BigActionCard = ({ taskType }: Props) => {
   const createTask = async () => {
     setDisabled(true)
     try {
-      await Api.createTask(new CreateTaskDto({ 
-        typeId: taskType.id,
-        projectId: taskType.projectId
-      }))
+      await Api.createTask(
+        new CreateTaskDto({
+          typeId: taskType.id,
+          projectId: taskType.projectId
+        })
+      )
       updateTasks()
       toast.success(`${taskType.displayName} er registreret`)
     } finally {
@@ -84,7 +86,7 @@ const BigActionCard = ({ taskType }: Props) => {
   }
 
   return (
-    <Card>
+    <Card sx={{ marginBottom: '1rem' }}>
       <CardActionArea
         onClick={createTask}
         disabled={disabled}

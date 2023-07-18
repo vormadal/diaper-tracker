@@ -1,8 +1,9 @@
 import { Button, TextField, Typography } from '@mui/material'
 import { FormEvent, useState } from 'react'
+import { CreateProjectDto } from '../../api/ApiClient'
 
 type Props = {
-  onSubmit: (name: string) => void | Promise<void>
+  onSubmit: (project: CreateProjectDto) => void | Promise<void>
 }
 
 const ProjectForm = ({ onSubmit }: Props) => {
@@ -12,7 +13,11 @@ const ProjectForm = ({ onSubmit }: Props) => {
     e.preventDefault()
     setDisabled(true)
     try {
-      await onSubmit(name)
+      await onSubmit(
+        new CreateProjectDto({
+          name: name
+        })
+      )
     } finally {
       setDisabled(false)
     }
