@@ -2,36 +2,60 @@ import {
   Button,
   Collapse,
   Grid,
+  IconButton,
+  InputAdornment,
   List,
   ListItem,
+  ListItemButton,
   ListItemIcon,
   ListItemText,
+  TextField,
   Typography
 } from '@mui/material'
-import { useState } from 'react'
+import { FormEvent, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { Api } from '../api'
-import { CreateTaskType, ProjectDto } from '../api/ApiClient'
+import { CreateProjectMemberInviteDto, CreateTaskType, ProjectDto, ProjectMemberDto } from '../api/ApiClient'
 import Loading from '../components/Loading'
 import TaskIcon from '../components/TaskIcon'
 import TaskTypeForm from '../components/taskType/TaskTypeForm'
 import { useData } from '../hooks/useData'
 import { useToast } from '../hooks/useToast'
+import { Create, Save } from '@mui/icons-material'
 
 const ProjectSettingsPage = () => {
   const toast = useToast()
   const params = useParams<{ id: string }>()
-  const [project, updateProject] = useData<ProjectDto, string | undefined>(
+  const [email, setEmail] = useState('')
+  const [members, updateMembers] = useData<ProjectMemberDto[], string>(
+    async (id?: string) => (id ? Api.getMembers(id) : []),
+    params.id
+  )
+  const [project, updateProject] = useData<ProjectDto, string>(
     async (id?: string) => (id ? Api.getProject(id) : undefined),
     params.id
   )
   const [showCreateTaskType, setShowCreateTaskType] = useState(false)
+  const [showInviteMember, setShowInviteMember] = useState(false)
 
   const createTaskType = async (taskType: CreateTaskType) => {
     const created = await Api.createTaskType(taskType)
     toast.success(`${created.displayName} has been added`)
     updateProject()
     setShowCreateTaskType(false)
+  }
+
+  const sendInvite = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    await Api.inviteProjectMember(
+      params.id!,
+      new CreateProjectMemberInviteDto({
+        email
+      })
+    )
+
+    setShowInviteMember(false)
+    toast.success(`Invitation sent to ${email}`)
   }
 
   if (!params.id) return null
@@ -76,6 +100,62 @@ const ProjectSettingsPage = () => {
           )}
         </Loading>
       </Grid>
+
+      <Loading {...members}>
+        {(data) => (
+          <Grid
+            item
+            xs={11}
+          >
+            <Typography variant="h6">Administrators</Typography>
+            <List dense>
+              {data
+                .filter((x) => x.isAdmin)
+                .map((x) => (
+                  <ListItem key={x.id}>{x.user?.fullName}</ListItem>
+                ))}
+            </List>
+
+            <Typography variant="h6">Members</Typography>
+            <List dense>
+              {data
+                .filter((x) => !x.isAdmin)
+                .map((x) => (
+                  <ListItem key={x.id}>{x.user?.fullName}</ListItem>
+                ))}
+
+              <form onSubmit={sendInvite}>
+                <Collapse in={showInviteMember}>
+                  {showInviteMember && (
+                    <TextField
+                      name="invite-email"
+                      type="email"
+                      required
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="Enter someones email"
+                      label="Email"
+                      InputProps={{
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            <IconButton
+                              type="submit"
+                              edge="end"
+                            >
+                              <Save />
+                            </IconButton>
+                          </InputAdornment>
+                        )
+                      }}
+                    />
+                  )}
+                </Collapse>
+              </form>
+              {!showInviteMember && <Button onClick={() => setShowInviteMember(true)}>Invite member</Button>}
+            </List>
+          </Grid>
+        )}
+      </Loading>
     </Grid>
   )
 }

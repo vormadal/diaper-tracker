@@ -28,17 +28,18 @@ const NavbarConfig = {
   icon: ({ sx }: { sx: SxProps<Theme> }) => <BannerIcon sx={sx} />,
   pages: [
     {
-      name: 'Hjem',
+      name: 'Home',
       path: '/'
     },
     {
       name: 'Settings',
-      path: '/settings'
+      path: '/settings',
+      requireLogin: true
     }
   ],
   settings: [
     {
-      name: 'Log ud',
+      name: 'Log out',
       isLogout: true
     }
   ]
@@ -122,16 +123,18 @@ const NavigationBar = ({ handleLogout }: Props) => {
                 display: { xs: 'block', md: 'none' }
               }}
             >
-              {NavbarConfig.pages.map((page) => (
-                <MenuItem
-                  key={page.name}
-                  component={Link}
-                  to={page.path}
-                  onClick={handleCloseNavMenu}
-                >
-                  <Typography textAlign="center">{page.name}</Typography>
-                </MenuItem>
-              ))}
+              {NavbarConfig.pages
+                .filter((x) => user.isLoggedIn || !x.requireLogin)
+                .map((page) => (
+                  <MenuItem
+                    key={page.name}
+                    component={Link}
+                    to={page.path}
+                    onClick={handleCloseNavMenu}
+                  >
+                    <Typography textAlign="center">{page.name}</Typography>
+                  </MenuItem>
+                ))}
             </Menu>
           </Box>
 
@@ -160,18 +163,20 @@ const NavigationBar = ({ handleLogout }: Props) => {
 
           {/* pages link - show on large screens */}
           <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-            {NavbarConfig.pages.map((page) => (
-              <Button
-                key={page.name}
-                onClick={handleCloseNavMenu}
-                component={Link}
-                to={page.path}
-                variant="text"
-                sx={{ my: 2, color: 'white', display: 'block' }}
-              >
-                {page.name}
-              </Button>
-            ))}
+            {NavbarConfig.pages
+              .filter((x) => user.isLoggedIn || !x.requireLogin)
+              .map((page) => (
+                <Button
+                  key={page.name}
+                  onClick={handleCloseNavMenu}
+                  component={Link}
+                  to={page.path}
+                  variant="text"
+                  sx={{ my: 2, color: 'white', display: 'block' }}
+                >
+                  {page.name}
+                </Button>
+              ))}
           </Box>
 
           {/* avatar if logged - show on large AND small screens */}

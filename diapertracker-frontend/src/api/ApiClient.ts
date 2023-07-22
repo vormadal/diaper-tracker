@@ -177,6 +177,168 @@ export class ApiClient {
     }
 
     /**
+     * @return Success
+     */
+    getInvite(id: string, cancelToken?: CancelToken | undefined): Promise<ProjectMemberInviteDto> {
+        let url_ = this.baseUrl + "/api/invites/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: AxiosRequestConfig = {
+            method: "GET",
+            url: url_,
+            headers: {
+                "Accept": "application/json"
+            },
+            cancelToken
+        };
+
+        return this.instance.request(options_).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
+            return this.processGetInvite(_response);
+        });
+    }
+
+    protected processGetInvite(response: AxiosResponse): Promise<ProjectMemberInviteDto> {
+        const status = response.status;
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (let k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
+        if (status === 200) {
+            const _responseText = response.data;
+            let result200: any = null;
+            let resultData200  = _responseText;
+            result200 = ProjectMemberInviteDto.fromJS(resultData200);
+            return Promise.resolve<ProjectMemberInviteDto>(result200);
+
+        } else if (status !== 200 && status !== 204) {
+            const _responseText = response.data;
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        }
+        return Promise.resolve<ProjectMemberInviteDto>(null as any);
+    }
+
+    /**
+     * @return Success
+     */
+    acceptInvite(id: string, cancelToken?: CancelToken | undefined): Promise<ProjectMemberInviteDto> {
+        let url_ = this.baseUrl + "/api/invites/{id}/accept";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: AxiosRequestConfig = {
+            method: "POST",
+            url: url_,
+            headers: {
+                "Accept": "application/json"
+            },
+            cancelToken
+        };
+
+        return this.instance.request(options_).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
+            return this.processAcceptInvite(_response);
+        });
+    }
+
+    protected processAcceptInvite(response: AxiosResponse): Promise<ProjectMemberInviteDto> {
+        const status = response.status;
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (let k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
+        if (status === 200) {
+            const _responseText = response.data;
+            let result200: any = null;
+            let resultData200  = _responseText;
+            result200 = ProjectMemberInviteDto.fromJS(resultData200);
+            return Promise.resolve<ProjectMemberInviteDto>(result200);
+
+        } else if (status !== 200 && status !== 204) {
+            const _responseText = response.data;
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        }
+        return Promise.resolve<ProjectMemberInviteDto>(null as any);
+    }
+
+    /**
+     * @return Success
+     */
+    declineInvite(id: string, cancelToken?: CancelToken | undefined): Promise<ProjectMemberInviteDto> {
+        let url_ = this.baseUrl + "/api/invites/{id}/decline";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: AxiosRequestConfig = {
+            method: "POST",
+            url: url_,
+            headers: {
+                "Accept": "application/json"
+            },
+            cancelToken
+        };
+
+        return this.instance.request(options_).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
+            return this.processDeclineInvite(_response);
+        });
+    }
+
+    protected processDeclineInvite(response: AxiosResponse): Promise<ProjectMemberInviteDto> {
+        const status = response.status;
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (let k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
+        if (status === 200) {
+            const _responseText = response.data;
+            let result200: any = null;
+            let resultData200  = _responseText;
+            result200 = ProjectMemberInviteDto.fromJS(resultData200);
+            return Promise.resolve<ProjectMemberInviteDto>(result200);
+
+        } else if (status !== 200 && status !== 204) {
+            const _responseText = response.data;
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        }
+        return Promise.resolve<ProjectMemberInviteDto>(null as any);
+    }
+
+    /**
      * Gets the projects of the current user
      * @return Success
      */
@@ -345,6 +507,178 @@ export class ApiClient {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
         }
         return Promise.resolve<ProjectDto>(null as any);
+    }
+
+    /**
+     * Deletes the project with the given id
+     * @param id Id of the project
+     * @return Success
+     */
+    deleteProject(id: string, cancelToken?: CancelToken | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/api/projects/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: AxiosRequestConfig = {
+            method: "DELETE",
+            url: url_,
+            headers: {
+            },
+            cancelToken
+        };
+
+        return this.instance.request(options_).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
+            return this.processDeleteProject(_response);
+        });
+    }
+
+    protected processDeleteProject(response: AxiosResponse): Promise<void> {
+        const status = response.status;
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (let k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
+        if (status === 200) {
+            const _responseText = response.data;
+            return Promise.resolve<void>(null as any);
+
+        } else if (status !== 200 && status !== 204) {
+            const _responseText = response.data;
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    /**
+     * @return Success
+     */
+    getMembers(id: string, cancelToken?: CancelToken | undefined): Promise<ProjectMemberDto[]> {
+        let url_ = this.baseUrl + "/api/projects/{id}/members";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: AxiosRequestConfig = {
+            method: "GET",
+            url: url_,
+            headers: {
+                "Accept": "application/json"
+            },
+            cancelToken
+        };
+
+        return this.instance.request(options_).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
+            return this.processGetMembers(_response);
+        });
+    }
+
+    protected processGetMembers(response: AxiosResponse): Promise<ProjectMemberDto[]> {
+        const status = response.status;
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (let k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
+        if (status === 200) {
+            const _responseText = response.data;
+            let result200: any = null;
+            let resultData200  = _responseText;
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(ProjectMemberDto.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return Promise.resolve<ProjectMemberDto[]>(result200);
+
+        } else if (status !== 200 && status !== 204) {
+            const _responseText = response.data;
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        }
+        return Promise.resolve<ProjectMemberDto[]>(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return Success
+     */
+    inviteProjectMember(id: string, body: CreateProjectMemberInviteDto | undefined, cancelToken?: CancelToken | undefined): Promise<ProjectMemberInviteDto> {
+        let url_ = this.baseUrl + "/api/projects/{id}/invite-member";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_: AxiosRequestConfig = {
+            data: content_,
+            method: "POST",
+            url: url_,
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            },
+            cancelToken
+        };
+
+        return this.instance.request(options_).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
+            return this.processInviteProjectMember(_response);
+        });
+    }
+
+    protected processInviteProjectMember(response: AxiosResponse): Promise<ProjectMemberInviteDto> {
+        const status = response.status;
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (let k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
+        if (status === 200) {
+            const _responseText = response.data;
+            let result200: any = null;
+            let resultData200  = _responseText;
+            result200 = ProjectMemberInviteDto.fromJS(resultData200);
+            return Promise.resolve<ProjectMemberInviteDto>(result200);
+
+        } else if (status !== 200 && status !== 204) {
+            const _responseText = response.data;
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        }
+        return Promise.resolve<ProjectMemberInviteDto>(null as any);
     }
 
     /**
@@ -744,6 +1078,42 @@ export interface ICreateProjectDto {
     name: string;
 }
 
+export class CreateProjectMemberInviteDto implements ICreateProjectMemberInviteDto {
+    email!: string;
+
+    constructor(data?: ICreateProjectMemberInviteDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.email = _data["email"];
+        }
+    }
+
+    static fromJS(data: any): CreateProjectMemberInviteDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateProjectMemberInviteDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["email"] = this.email;
+        return data;
+    }
+}
+
+export interface ICreateProjectMemberInviteDto {
+    email: string;
+}
+
 /** DTO to be used when creating a new task */
 export class CreateTaskDto implements ICreateTaskDto {
     /** Task type ID */
@@ -921,6 +1291,122 @@ export interface IProjectDto {
     id: string;
     name: string;
     taskTypes: TaskTypeDto[];
+}
+
+export class ProjectMemberDto implements IProjectMemberDto {
+    id?: string;
+    projectId?: string;
+    userId?: string;
+    user?: UserDto;
+    isAdmin?: boolean;
+
+    constructor(data?: IProjectMemberDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.projectId = _data["projectId"];
+            this.userId = _data["userId"];
+            this.user = _data["user"] ? UserDto.fromJS(_data["user"]) : <any>undefined;
+            this.isAdmin = _data["isAdmin"];
+        }
+    }
+
+    static fromJS(data: any): ProjectMemberDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new ProjectMemberDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["projectId"] = this.projectId;
+        data["userId"] = this.userId;
+        data["user"] = this.user ? this.user.toJSON() : <any>undefined;
+        data["isAdmin"] = this.isAdmin;
+        return data;
+    }
+}
+
+export interface IProjectMemberDto {
+    id?: string;
+    projectId?: string;
+    userId?: string;
+    user?: UserDto;
+    isAdmin?: boolean;
+}
+
+export class ProjectMemberInviteDto implements IProjectMemberInviteDto {
+    id!: string;
+    project!: ProjectDto;
+    createdBy!: UserDto;
+    createdOn!: Date;
+    email!: string;
+    isAccepted!: boolean;
+    token?: string;
+
+    constructor(data?: IProjectMemberInviteDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+        if (!data) {
+            this.project = new ProjectDto();
+            this.createdBy = new UserDto();
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.project = _data["project"] ? ProjectDto.fromJS(_data["project"]) : new ProjectDto();
+            this.createdBy = _data["createdBy"] ? UserDto.fromJS(_data["createdBy"]) : new UserDto();
+            this.createdOn = _data["createdOn"] ? new Date(_data["createdOn"].toString()) : <any>undefined;
+            this.email = _data["email"];
+            this.isAccepted = _data["isAccepted"];
+            this.token = _data["token"];
+        }
+    }
+
+    static fromJS(data: any): ProjectMemberInviteDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new ProjectMemberInviteDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["project"] = this.project ? this.project.toJSON() : <any>undefined;
+        data["createdBy"] = this.createdBy ? this.createdBy.toJSON() : <any>undefined;
+        data["createdOn"] = this.createdOn ? this.createdOn.toISOString() : <any>undefined;
+        data["email"] = this.email;
+        data["isAccepted"] = this.isAccepted;
+        data["token"] = this.token;
+        return data;
+    }
+}
+
+export interface IProjectMemberInviteDto {
+    id: string;
+    project: ProjectDto;
+    createdBy: UserDto;
+    createdOn: Date;
+    email: string;
+    isAccepted: boolean;
+    token?: string;
 }
 
 /** A representation of a persisted task including type details */

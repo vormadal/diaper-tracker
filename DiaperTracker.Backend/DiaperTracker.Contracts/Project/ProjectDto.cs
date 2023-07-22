@@ -12,5 +12,5 @@ public class ProjectDto
     public string Name { get; set; }
 
     [Required]
-    public List<TaskTypeDto> TaskTypes { get; set; } = new List<TaskTypeDto>();
+    public IEnumerable<TaskTypeDto> TaskTypes { get; set; } = new List<TaskTypeDto>();
 }

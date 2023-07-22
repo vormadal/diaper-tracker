@@ -17,6 +17,7 @@ import PrivacyPage from './pages/PrivacyPage'
 import TermsPage from './pages/TermsPage'
 import SettingsPage from './pages/SettingsPage'
 import ProjectSettingsPage from './pages/ProjectSettingsPage'
+import InvitationPage from './pages/InvitationPage'
 
 function App() {
   const [user, refreshUser] = useData(() => Api.me())
@@ -43,7 +44,7 @@ function App() {
   return (
     <Router>
       <Toast>
-        <UserContext.Provider value={[user.data ?? new UserProfile()]}>
+        <UserContext.Provider value={[user.data ?? new UserProfile(), refreshUser]}>
           <ThemeProvider theme={theme}>
             <>
               <NavigationBar handleLogout={handleLogout} />
@@ -67,6 +68,10 @@ function App() {
                 <Route
                   path="settings"
                   element={<SettingsPage />}
+                />
+                <Route
+                  path="invite/:id"
+                  element={<InvitationPage />}
                 />
               </Routes>
             </>

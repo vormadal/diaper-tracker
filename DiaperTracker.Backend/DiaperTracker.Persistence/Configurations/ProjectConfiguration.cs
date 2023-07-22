@@ -15,6 +15,9 @@ public class ProjectConfiguration : IEntityTypeConfiguration<Project>
 
         builder.Property(x => x.Name);
 
+        builder.Property(x => x.IsDeleted)
+            .HasDefaultValue(false);
+
         builder
             .HasMany(x => x.Members)
             .WithOne(x => x.Project)

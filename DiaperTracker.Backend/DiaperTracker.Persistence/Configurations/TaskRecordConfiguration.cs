@@ -29,7 +29,7 @@ public class TaskRecordConfiguration : IEntityTypeConfiguration<TaskRecord>
         builder
             .HasOne(x => x.Project)
             .WithMany(x => x.Tasks)
-            .HasForeignKey(x => x.ProjectId);
-            //.IsRequired();
+            .HasForeignKey(x => x.ProjectId)
+            .IsRequired();
     }
 }

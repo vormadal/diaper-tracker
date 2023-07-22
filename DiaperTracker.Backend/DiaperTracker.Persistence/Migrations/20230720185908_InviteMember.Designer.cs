@@ -3,6 +3,7 @@ using System;
 using DiaperTracker.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DiaperTracker.Persistence.Migrations
 {
     [DbContext(typeof(DiaperTrackerDatabaseContext))]
-    partial class DiaperTrackerDatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20230720185908_InviteMember")]
+    partial class InviteMember
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -151,6 +153,7 @@ namespace DiaperTracker.Persistence.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("AcceptedById")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("AcceptedOn")
@@ -548,7 +551,9 @@ namespace DiaperTracker.Persistence.Migrations
                 {
                     b.HasOne("DiaperTracker.Domain.ApplicationUser", "AcceptedBy")
                         .WithMany()
-                        .HasForeignKey("AcceptedById");
+                        .HasForeignKey("AcceptedById")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("DiaperTracker.Domain.ApplicationUser", "CreatedBy")
                         .WithMany()

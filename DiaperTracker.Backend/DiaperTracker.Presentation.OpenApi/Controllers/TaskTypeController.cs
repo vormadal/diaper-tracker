@@ -36,6 +36,6 @@ public class TaskTypeController : ControllerBase
         [FromQuery] int? count,
         CancellationToken token)
     {
-        return await _taskRecordService.GetByProjectAndType(null, id, count, token);
+            return await _taskRecordService.GetByProjectAndType(null, id, count, token);
     }
 }

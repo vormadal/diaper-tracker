@@ -6,5 +6,5 @@ public interface ITaskTypeRepository
 
     Task<TaskType> Update(TaskType taskType, CancellationToken token = default);
 
-    Task<IEnumerable<TaskType>> GetAll(CancellationToken token = default);
+    Task<IEnumerable<TaskType>> FindByProject(string projectId, bool includeDeleted = false, CancellationToken token = default);
 }
