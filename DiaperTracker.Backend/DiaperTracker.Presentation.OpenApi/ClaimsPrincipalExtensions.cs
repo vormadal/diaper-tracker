@@ -1,6 +1,6 @@
 ﻿using System.Security.Claims;
 
-namespace DiaperTracker.Presentation.OpenApi.Controllers;
+namespace DiaperTracker.Presentation.OpenApi;
 
 internal static class ClaimsPrincipalExtensions
 {

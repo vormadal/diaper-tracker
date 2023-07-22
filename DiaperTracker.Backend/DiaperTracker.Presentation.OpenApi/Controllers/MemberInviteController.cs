@@ -12,6 +12,7 @@ namespace DiaperTracker.Presentation.OpenApi.Controllers;
 [Produces("application/json")]
 public class MemberInviteController : ControllerBase
 {
+ 
     private readonly IProjectService _projectService;
 
     public MemberInviteController(IProjectService projectService)

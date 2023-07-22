@@ -4,7 +4,6 @@ using DiaperTracker.Services.Abstractions;
 using Mapster;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using DiaperTracker.Domain;
 using DiaperTracker.Persistence;
 
 namespace DiaperTracker.Api;
@@ -22,13 +21,13 @@ public class AccountController : ControllerBase
 {
     private readonly SignInManager<ApplicationUser> _signInManager;
     private readonly UserManager<ApplicationUser> _userManager;
-    private readonly ILoginServiceFactory _loginServiceFactory;
+    private readonly IServiceProvider _serviceProvider;
 
-    public AccountController(SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager, ILoginServiceFactory loginServiceFactory)
+    public AccountController(SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager, IServiceProvider serviceProvider)
     {
         _signInManager = signInManager;
         _userManager = userManager;
-        _loginServiceFactory = loginServiceFactory;
+        _serviceProvider = serviceProvider;
     }
 
     [HttpGet("me")]
@@ -55,7 +54,15 @@ public class AccountController : ControllerBase
 
     public async Task<ActionResult> ExternalLogin([FromRoute] string provider, [FromBody] ExternalLoginRequest content)
     {
-        var loginService = _loginServiceFactory.Get(provider);
+        var loginServices = _serviceProvider.GetServices<LoginService>();
+
+        var loginService = loginServices.FirstOrDefault(x => x.Name == provider);
+
+        if(loginService == null)
+        {
+            throw new Exception($"No login service for {provider}");
+        }
+
         var payload = await loginService.ValidateAsync(content.Token);
         var user = await _userManager.FindByLoginAsync(provider, payload.Id);
         if (user == null)

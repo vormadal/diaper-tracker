@@ -6,11 +6,13 @@ using DiaperTracker.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Duende.IdentityServer;
 using DiaperTracker.Api;
+using DiaperTracker.Authentication;
+using DiaperTracker.Authentication.Google;
+using DiaperTracker.Email.Sendgrid;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
 // Add services to the container.
-
 builder.Services.Configure<GoogleOptions>(x =>
 {
     builder.Configuration.GetSection("Authentication:Google").Bind(x);
@@ -26,7 +28,15 @@ builder.Services.Configure<InviteOptions>(x =>
     builder.Configuration.GetSection("Email:Invite").Bind(x);
 });
 
-builder.Services.AddRepositories(builder.Configuration.GetConnectionString("Database"));
+builder.Services
+    .AddHttpClient()
+    .AddServices()
+    .AddSocialLoginServices()
+    .AddEmailServices()
+    .AddRepositories(builder.Configuration.GetConnectionString("Database"))
+    .AddExceptionMappings()
+    .AddIdentity();
+
 builder.Services.AddControllers(options =>
 {
     options.Filters.Add<HttpResponseExceptionFilter>();
@@ -38,7 +48,8 @@ builder.Services.AddControllers(options =>
     })
     .AddApplicationPart(typeof(DiaperTracker.Presentation.OpenApi.AssemblyReference).Assembly);
 
-builder.Services.AddExceptionMappings();
+# region configure Swagger
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(config =>
@@ -57,8 +68,9 @@ builder.Services.AddSwaggerGen(config =>
     config.SupportNonNullableReferenceTypes();
 });
 
+#endregion
 
-builder.Services.AddIdentity();
+# region cookie configration
 
 builder.Services.Configure<CookiePolicyOptions>(options =>
 {
@@ -87,22 +99,19 @@ builder.Services.ConfigureApplicationCookie(options =>
 builder.Services.ConfigureExternalCookie(options =>
 {
     options.ExpireTimeSpan = TimeSpan.FromDays(1);
-    options.Cookie.SameSite =  builder.Environment.IsDevelopment() ? SameSiteMode.None : SameSiteMode.Strict;
+    options.Cookie.SameSite = builder.Environment.IsDevelopment() ? SameSiteMode.None : SameSiteMode.Strict;
 });
 
-builder.Services.AddHttpClient();
-builder.Services.AddServices();
-
+# endregion
 
 var app = builder.Build();
 
-
 // add middleware
-app.UseHttpsRedirection();
-app.UseRouting();
-app.UseAuthentication();
-app.UseIdentityServer();
-app.UseAuthorization();
+app.UseHttpsRedirection()
+    .UseRouting()
+    .UseAuthentication()
+    .UseIdentityServer()
+    .UseAuthorization();
 
 Console.WriteLine($"Starting in environemnt: {app.Environment.EnvironmentName}");
 if (app.Environment.IsDevelopment())

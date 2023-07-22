@@ -5,4 +5,6 @@ namespace DiaperTracker.Services.Abstractions;
 public interface LoginService
 {
     public Task<ExternalLoginPayload> ValidateAsync(string token);
+
+    public string Name { get; }
 }

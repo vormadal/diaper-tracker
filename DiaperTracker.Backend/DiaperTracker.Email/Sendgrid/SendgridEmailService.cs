@@ -3,16 +3,8 @@ using SendGrid;
 using Microsoft.Extensions.Options;
 using DiaperTracker.Services.Abstractions;
 
-namespace DiaperTracker.Services;
+namespace DiaperTracker.Email.Sendgrid;
 
-public class SendgridOptions
-{
-    public string ApiKey { get; set; }
-
-    public string SenderName { get; set; }
-
-    public string SenderEmail { get; set; }
-}
 internal class SendgridEmailService : IEmailService
 {
     private readonly IOptions<SendgridOptions> _options;

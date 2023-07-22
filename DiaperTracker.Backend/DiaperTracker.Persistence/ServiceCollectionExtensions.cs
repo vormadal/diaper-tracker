@@ -1,5 +1,4 @@
-﻿using DiaperTracker.Domain;
-using DiaperTracker.Domain.Repositories;
+﻿using DiaperTracker.Domain.Repositories;
 using DiaperTracker.Persistence.Repositories;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
@@ -9,7 +8,7 @@ namespace DiaperTracker.Persistence;
 
 public static class ServiceCollectionExtensions
 {
-    public static void AddRepositories(this IServiceCollection services, string connectionString)
+    public static IServiceCollection AddRepositories(this IServiceCollection services, string connectionString)
     {
         services.AddDbContext<DiaperTrackerDatabaseContext>(config =>
         {
@@ -22,6 +21,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IProjectRepository, ProjectRepository>();
         services.AddScoped<IProjectMemberRepository, ProjectMemberRepository>();
         services.AddScoped<IProjectMemberInviteRepository, ProjectMemberInviteRepository>();
+        return services;
     }
 
     public static AuthenticationBuilder AddIdentity(this IServiceCollection services)

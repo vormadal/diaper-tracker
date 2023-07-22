@@ -21,7 +21,7 @@ public class TaskTypeService : ITaskTypeService
 
     public async Task<TaskTypeDto> Create(CreateTaskType taskType, string userId, CancellationToken token)
     {
-        var project =await _projectRepository.FindById(taskType.ProjectId, token);
+        var project =await _projectRepository.FindById(taskType.ProjectId, false, token);
         if(project == null || !project.Members.Any(x => x.UserId == userId && x.IsAdmin))
         {
             //TODO make better
