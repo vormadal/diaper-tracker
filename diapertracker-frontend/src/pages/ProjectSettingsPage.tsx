@@ -1,3 +1,4 @@
+import { Delete, Edit, Save } from '@mui/icons-material'
 import {
   Button,
   Collapse,
@@ -21,7 +22,6 @@ import TaskIcon from '../components/TaskIcon'
 import TaskTypeForm from '../components/taskType/TaskTypeForm'
 import { useData } from '../hooks/useData'
 import { useToast } from '../hooks/useToast'
-import { Create, Save } from '@mui/icons-material'
 
 const ProjectSettingsPage = () => {
   const toast = useToast()
@@ -58,6 +58,12 @@ const ProjectSettingsPage = () => {
     toast.success(`Invitation sent to ${email}`)
   }
 
+  const deleteTaskType = async (id: string) => {
+    await Api.deleteTaskType(id)
+    updateProject()
+    toast.success('Task type has been deleted')
+  }
+
   if (!params.id) return null
 
   return (
@@ -72,9 +78,27 @@ const ProjectSettingsPage = () => {
         <Loading {...project}>
           {(data) => (
             <>
+              <Typography variant="h4">
+                {data.name}{' '}
+                <IconButton>
+                  <Edit />
+                </IconButton>
+              </Typography>
+
+              <Typography variant="body1">Below you can add new task types or invite new members</Typography>
               <List>
                 {data.taskTypes.map((x) => (
-                  <ListItem key={x.id}>
+                  <ListItem
+                    key={x.id}
+                    secondaryAction={
+                      <IconButton
+                        edge="end"
+                        onClick={() => deleteTaskType(x.id)}
+                      >
+                        <Delete />
+                      </IconButton>
+                    }
+                  >
                     <ListItemIcon>
                       <TaskIcon name={x.icon} />
                     </ListItemIcon>
@@ -94,6 +118,7 @@ const ProjectSettingsPage = () => {
                 <TaskTypeForm
                   projectId={data.id}
                   onSubmit={createTaskType}
+                  onCancel={() => setShowCreateTaskType(false)}
                 />
               </Collapse>
             </>

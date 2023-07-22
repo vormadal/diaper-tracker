@@ -34,4 +34,19 @@ public class TaskTypeService : ITaskTypeService
 
         return toCreate.Adapt<TaskTypeDto>();
     }
+
+    public async Task Delete(string id, string userId, CancellationToken token = default)
+    {
+        var taskType = await _taskTypeRepository.FindById(id, token);
+        var project = await _projectRepository.FindById(taskType.ProjectId, false, token);
+
+        if(!project.Members.Any(x => x.UserId == userId && x.IsAdmin))
+        {
+            throw new Exception("You are not allowed");
+        }
+
+        taskType.IsDeleted = true;
+        await _taskTypeRepository.Update(taskType, token);
+        await _unitOfWork.SaveChangesAsync();
+    }
 }

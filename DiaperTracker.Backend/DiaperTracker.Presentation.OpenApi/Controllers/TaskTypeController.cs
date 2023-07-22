@@ -37,4 +37,12 @@ public class TaskTypeController : ControllerBase
     {
             return await _taskRecordService.GetByProjectAndType(null, id, count, token);
     }
+
+    [HttpDelete("{id}")]
+    public async Task DeleteTaskType(
+        [FromRoute] string id,
+        CancellationToken token)
+    {
+        await _taskTypeService.Delete(id, User.GetSubjectId(), token);
+    }
 }

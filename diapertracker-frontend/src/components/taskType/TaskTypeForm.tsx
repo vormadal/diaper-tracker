@@ -5,9 +5,10 @@ import { Button, TextField } from '@mui/material'
 type Props = {
   projectId: string
   onSubmit: (taskType: CreateTaskType) => void | Promise<void>
+  onCancel?: () => void | Promise<void>
 }
 
-const TaskTypeForm = ({ projectId, onSubmit }: Props) => {
+const TaskTypeForm = ({ projectId, onSubmit, onCancel }: Props) => {
   const [name, setName] = useState('')
   const [icon, setIcon] = useState('')
   const [disabled, setDisabled] = useState(false)
@@ -48,6 +49,16 @@ const TaskTypeForm = ({ projectId, onSubmit }: Props) => {
       >
         Create
       </Button>
+      {onCancel && (
+        <Button
+          disabled={disabled}
+          color="inherit"
+          variant='text'
+          onClick={onCancel}
+        >
+          Cancel
+        </Button>
+      )}
     </form>
   )
 }

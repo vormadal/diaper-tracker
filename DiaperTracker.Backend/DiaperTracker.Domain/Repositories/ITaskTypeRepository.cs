@@ -1,6 +1,6 @@
 ﻿namespace DiaperTracker.Domain.Repositories;
 
-public interface ITaskTypeRepository
+public interface ITaskTypeRepository : IRepositoryBase<TaskType>
 {
     Task<TaskType> Create(TaskType taskType, CancellationToken token = default);
 
