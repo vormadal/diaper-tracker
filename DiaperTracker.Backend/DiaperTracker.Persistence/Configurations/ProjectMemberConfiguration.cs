@@ -16,7 +16,7 @@ public class ProjectMemberConfiguration : IEntityTypeConfiguration<ProjectMember
         builder.Property(x => x.IsAdmin);
 
         builder
-            .HasOne(x => x.User)
+            .HasOne(x => x.User as ApplicationUser)
             .WithMany()
             .HasForeignKey(x => x.UserId)
             .IsRequired();

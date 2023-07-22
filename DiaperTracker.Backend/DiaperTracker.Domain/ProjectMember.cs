@@ -10,7 +10,7 @@ public class ProjectMember
 
     public string UserId { get; set; }
 
-    public virtual ApplicationUser User { get; set; }
+    public IApplicationUser User { get; set; }
 
     public bool IsAdmin { get; set; }
 }

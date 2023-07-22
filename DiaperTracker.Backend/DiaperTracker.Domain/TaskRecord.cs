@@ -16,5 +16,5 @@ public class TaskRecord
 
     public string CreatedById { get; set; }
 
-    public virtual ApplicationUser CreatedBy { get; set; }
+    public virtual IApplicationUser CreatedBy { get; set; }
 }

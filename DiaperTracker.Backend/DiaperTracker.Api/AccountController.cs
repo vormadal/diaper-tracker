@@ -5,6 +5,7 @@ using Mapster;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using DiaperTracker.Domain;
+using DiaperTracker.Persistence;
 
 namespace DiaperTracker.Api;
 

@@ -1,6 +1,5 @@
 ﻿using DiaperTracker.Contracts.Task;
 using DiaperTracker.Services.Abstractions;
-using Duende.IdentityServer.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -43,7 +42,7 @@ public class TaskController : ControllerBase
         [FromBody] CreateTaskDto task, 
         CancellationToken token)
     {
-        return await _taskService.CreateTask(task, User.Identity.GetSubjectId(), token);
+        return await _taskService.CreateTask(task, User.GetSubjectId(), token);
     }
 
     [HttpPut("{id}")]

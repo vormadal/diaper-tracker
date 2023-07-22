@@ -1,8 +1,8 @@
 ﻿using DiaperTracker.Contracts.ProjectMember;
 using DiaperTracker.Services.Abstractions;
-using Duende.IdentityServer.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace DiaperTracker.Presentation.OpenApi.Controllers;
 
@@ -38,7 +38,7 @@ public class MemberInviteController : ControllerBase
             Id = id,
             Response = InviteResponse.Accepted
         };
-        return await _projectService.RespondToInvite(response, User.GetSubjectId(), token);
+        return await _projectService.RespondToInvite(response, User.FindFirst(ClaimTypes.NameIdentifier)?.Value, token);
     }
 
     [HttpPost("{id}/decline")]

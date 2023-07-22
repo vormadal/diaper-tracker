@@ -1,7 +1,6 @@
 ﻿using DiaperTracker.Contracts.Project;
 using DiaperTracker.Contracts.ProjectMember;
 using DiaperTracker.Services.Abstractions;
-using Duende.IdentityServer.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

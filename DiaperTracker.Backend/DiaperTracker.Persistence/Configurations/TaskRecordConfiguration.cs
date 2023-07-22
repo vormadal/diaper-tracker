@@ -15,7 +15,8 @@ public class TaskRecordConfiguration : IEntityTypeConfiguration<TaskRecord>
 
         builder.Property(x => x.Date);
         
-        builder.HasOne(x => x.CreatedBy)
+        builder
+            .HasOne(x => x.CreatedBy as ApplicationUser)
             .WithMany(x => x.TaskRecords)
             .HasForeignKey(x => x.CreatedById)
             .IsRequired();

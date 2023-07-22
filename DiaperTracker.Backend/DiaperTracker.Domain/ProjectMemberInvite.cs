@@ -10,11 +10,11 @@ public class ProjectMemberInvite
 
     public string CreatedById { get; set; }
 
-    public virtual ApplicationUser CreatedBy { get; set; }
+    public virtual IApplicationUser CreatedBy { get; set; }
 
     public string? AcceptedById { get; set; }
 
-    public ApplicationUser? AcceptedBy { get; set; }
+    public IApplicationUser? AcceptedBy { get; set; }
 
     public DateTime CreatedOn { get; set; }
 

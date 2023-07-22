@@ -25,13 +25,13 @@ public class ProjectMemberInviteConfiguration : IEntityTypeConfiguration<Project
             .IsRequired();
 
         builder
-            .HasOne(x => x.CreatedBy)
+            .HasOne(x => x.CreatedBy as ApplicationUser)
             .WithMany()
             .HasForeignKey(x => x.CreatedById)
             .IsRequired();
 
         builder
-            .HasOne(x => x.AcceptedBy)
+            .HasOne(x => x.AcceptedBy as ApplicationUser)
             .WithMany()
             .HasForeignKey(x => x.AcceptedById)
             .IsRequired(false);
