@@ -31,8 +31,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DiaperTracker.Email", "Diap
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DiaperTracker.Authentication", "DiaperTracker.Authentication\DiaperTracker.Authentication.csproj", "{3D665036-AAF8-4593-AF32-AB117D46599C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApplication1", "..\WebApplication1\WebApplication1.csproj", "{7D5EF57E-EC1A-4BA8-9980-968DD3323E53}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -79,10 +77,6 @@ Global
 		{3D665036-AAF8-4593-AF32-AB117D46599C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3D665036-AAF8-4593-AF32-AB117D46599C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3D665036-AAF8-4593-AF32-AB117D46599C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7D5EF57E-EC1A-4BA8-9980-968DD3323E53}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7D5EF57E-EC1A-4BA8-9980-968DD3323E53}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7D5EF57E-EC1A-4BA8-9980-968DD3323E53}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7D5EF57E-EC1A-4BA8-9980-968DD3323E53}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
