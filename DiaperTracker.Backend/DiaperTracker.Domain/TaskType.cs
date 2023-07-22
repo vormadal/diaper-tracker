@@ -13,4 +13,6 @@ public class TaskType
     public string Icon { get; set; }
 
     public ICollection<TaskRecord> Records { get; set; }
+
+    public bool IsDeleted { get; set; }
 }

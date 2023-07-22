@@ -15,12 +15,12 @@ internal abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
         _context = context;
     }
 
-    public IQueryable<T> FindAll(CancellationToken token = default)
+    public virtual IQueryable<T> FindAll(CancellationToken token = default)
     {
         return _set.AsNoTracking();
     }
 
-    public async Task<T?> FindById(string id, CancellationToken token = default)
+    public virtual async Task<T?> FindById(string id, CancellationToken token = default)
     {
         return await _set.FindAsync(new[] { id }, token);
     }
@@ -30,25 +30,25 @@ internal abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
         return _set.Where(expression).AsNoTracking();
     }
 
-    public async Task<T> Create(T entity, CancellationToken token = default)
+    public virtual async Task<T> Create(T entity, CancellationToken token = default)
     {
         var result = await _set.AddAsync(entity, token);
         return result.Entity;
     }
 
-    public async Task<IEnumerable<T>> Create(IEnumerable<T> entities, CancellationToken token = default)
+    public virtual async Task<IEnumerable<T>> Create(IEnumerable<T> entities, CancellationToken token = default)
     {
         await _set.AddRangeAsync(entities, token);
         return entities;
     }
 
-    public Task<T> Update(T entity, CancellationToken token = default)
+    public virtual Task<T> Update(T entity, CancellationToken token = default)
     {
         var result = _set.Update(entity);
         return Task.FromResult(result.Entity);
     }
 
-    public Task Delete(T entity, CancellationToken token = default)
+    public virtual Task Delete(T entity, CancellationToken token = default)
     {
         _set.Remove(entity);
         return Task.CompletedTask;

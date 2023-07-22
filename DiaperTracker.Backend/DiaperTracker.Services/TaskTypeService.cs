@@ -34,12 +34,4 @@ public class TaskTypeService : ITaskTypeService
 
         return toCreate.Adapt<TaskTypeDto>();
     }
-
-    public async Task<IEnumerable<TaskTypeDto>> GetAll(CancellationToken token = default)
-    {
-        var types = await _taskTypeRepository.GetAll(token);
-
-        return types.Adapt<IEnumerable<TaskTypeDto>>();
-    }
-
 }

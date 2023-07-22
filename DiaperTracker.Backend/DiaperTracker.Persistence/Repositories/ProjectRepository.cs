@@ -10,20 +10,34 @@ internal class ProjectRepository : RepositoryBase<Project>, IProjectRepository
     {
     }
 
-    async Task<Project?> IRepositoryBase<Project>.FindById(string id, CancellationToken token)
+    public async Task<Project?> FindById(string id, bool includeDeleted = false, CancellationToken token = default)
     {
-        return await _set.Where(x => x.Id == id)
+        var q = _set
             .Include(x => x.TaskTypes)
             .Include(x => x.Members)
-            .FirstAsync(token);
+                .ThenInclude(x => x.User)
+            .Where(x => x.Id == id);
+
+        if (!includeDeleted)
+        {
+            q = q.Where(x => x.IsDeleted == false);
+        }
+
+        return await q.FirstAsync(token);
     }
 
-    public async Task<IEnumerable<Project>> FindByUser(string userId, CancellationToken token = default)
+    public async Task<IEnumerable<Project>> FindByUser(string userId, bool includeDeleted = false, CancellationToken token = default)
     {
         var memberships = await _context.Members.Where(x => x.UserId == userId)
             .Include(x => x.Project)
             .ToListAsync(token);
 
-        return memberships.Select(x => x.Project).ToList();
+        var q = memberships.Select(x => x.Project);
+        if (!includeDeleted)
+        {
+            q = q.Where(x => x.IsDeleted == false);
+        }
+
+        return q.ToList();
     }
 }

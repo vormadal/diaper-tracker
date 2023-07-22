@@ -8,7 +8,10 @@ public class ExceptionMapperOptions
     private readonly Dictionary<Type, IExceptionMapping> _mappings = new Dictionary<Type, IExceptionMapping>();
     private readonly ExceptionMapping<Exception> _defaultMapping = new ExceptionMapping<Exception>
     {
-
+        Type = typeof(Exception),
+        Title = (e) => "Unknown error",
+        Description = (e) => "Something went wrong",
+        Status = HttpStatusCode.InternalServerError
     };
     internal void Map<T>(HttpStatusCode status, Func<T, string> title, Func<T, string> description) where T : Exception
     {
@@ -37,8 +40,8 @@ public class ExceptionMapperOptions
 
     private class ExceptionMapping<T> : IExceptionMapping where T : Exception
     {
-        public Type Type { get; set; }
-        public HttpStatusCode Status { get; set; }
+        public Type Type { get; set; } = typeof(Exception);
+        public HttpStatusCode Status { get; set; } = HttpStatusCode.InternalServerError;
         public Func<T, string> Title { get; set; }
         public Func<T, string> Description { get; set; }
 

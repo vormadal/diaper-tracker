@@ -21,6 +21,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ITaskRecordRepository, TaskRecordRepository>();
         services.AddScoped<IProjectRepository, ProjectRepository>();
         services.AddScoped<IProjectMemberRepository, ProjectMemberRepository>();
+        services.AddScoped<IProjectMemberInviteRepository, ProjectMemberInviteRepository>();
     }
 
     public static AuthenticationBuilder AddIdentity(this IServiceCollection services)

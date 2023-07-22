@@ -16,6 +16,16 @@ builder.Services.Configure<GoogleOptions>(x =>
     builder.Configuration.GetSection("Authentication:Google").Bind(x);
 });
 
+builder.Services.Configure<SendgridOptions>(x =>
+{
+    builder.Configuration.GetSection("Email:Sendgrid").Bind(x);
+});
+
+builder.Services.Configure<InviteOptions>(x =>
+{
+    builder.Configuration.GetSection("Email:Invite").Bind(x);
+});
+
 builder.Services.AddRepositories(builder.Configuration.GetConnectionString("Database"));
 builder.Services.AddControllers(options =>
 {

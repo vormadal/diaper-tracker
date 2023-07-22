@@ -18,11 +18,13 @@ public class ProjectMemberConfiguration : IEntityTypeConfiguration<ProjectMember
         builder
             .HasOne(x => x.User)
             .WithMany()
-            .HasForeignKey(x => x.UserId);
+            .HasForeignKey(x => x.UserId)
+            .IsRequired();
 
         builder
             .HasOne(x => x.Project)
             .WithMany(x => x.Members)
-            .HasForeignKey(x => x.ProjectId);
+            .HasForeignKey(x => x.ProjectId)
+            .IsRequired();
     }
 }

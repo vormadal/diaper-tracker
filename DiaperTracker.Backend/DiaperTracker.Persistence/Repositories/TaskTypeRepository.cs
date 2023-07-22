@@ -10,8 +10,16 @@ internal class TaskTypeRepository : RepositoryBase<TaskType>, ITaskTypeRepositor
     {
     }
 
-    public async Task<IEnumerable<TaskType>> GetAll(CancellationToken token = default)
+    public async Task<IEnumerable<TaskType>> FindByProject(string projectId, bool includeDeleted = false, CancellationToken token = default)
     {
-        return await _set.ToListAsync(token);
+        var q = _set.Where(x => x.ProjectId == projectId);
+
+        if (!includeDeleted)
+        {
+            q = q.Where(x => x.IsDeleted == false);
+        }
+
+        return await q.ToListAsync(token);
     }
+
 }

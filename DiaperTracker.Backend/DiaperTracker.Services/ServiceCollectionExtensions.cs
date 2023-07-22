@@ -11,5 +11,6 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ITaskRecordService, TaskRecordService>();
         services.AddScoped<ILoginServiceFactory, LoginServiceFactory>();
         services.AddScoped<IProjectService, ProjectService>();
+        services.AddScoped<IEmailService, SendgridEmailService>();
     }
 }
