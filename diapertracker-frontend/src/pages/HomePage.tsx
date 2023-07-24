@@ -1,30 +1,25 @@
 import { FormControl, Grid, InputLabel, MenuItem, Select, Typography } from '@mui/material'
 import { Api } from '../api'
-import { CreateProjectDto, CreateTaskType } from '../api/ApiClient'
+import { CreateTaskType, ProjectDto, TaskTypeDto } from '../api/ApiClient'
 import BigActionCard from '../components/BigActionCard'
-import Loading from '../components/Loading'
-import ProjectForm from '../components/project/ProjectForm'
-import TaskTypeForm from '../components/taskType/TaskTypeForm'
+import { ProjectFormCreate } from '../components/project/ProjectForm'
+import Loading from '../components/shared/Loading'
 import { useData } from '../hooks/useData'
 import { useProject } from '../hooks/useProject'
 import { useToast } from '../hooks/useToast'
+import { TaskTypeFormCreate } from '../components/taskType/TaskTypeForm'
 
 const HomePage = () => {
   const toast = useToast()
   const [projects, updateProjects] = useData(() => Api.getMyProjects())
   const [project, setProject] = useProject()
 
-  const createProject = async (project: CreateProjectDto) => {
-    const created = await Api.createProject(project)
-
-    toast.success(`${created.name} has been registered`)
-    await setProject(created.id!)
+  const handleCreatedProject = async (created: ProjectDto) => {
+    await setProject(created.id)
     updateProjects()
   }
 
-  const createTaskType = async (taskType: CreateTaskType) => {
-    const created = await Api.createTaskType(taskType)
-    toast.success(`${created.displayName} has been added`)
+  const handleCreatedTaskType = async (taskType: TaskTypeDto) => {
     await setProject(taskType.projectId)
   }
 
@@ -48,7 +43,7 @@ const HomePage = () => {
                   </Typography>
                   <br />
 
-                  <ProjectForm onSubmit={createProject} />
+                  <ProjectFormCreate onCreated={handleCreatedProject} />
                 </>
               )}
 
@@ -64,7 +59,13 @@ const HomePage = () => {
                         onChange={(e) => setProject(e.target.value)}
                       >
                         {data.map((x) => (
-                          <MenuItem key={x.id} selected={x.id === project?.id} value={x.id}>{x.name}</MenuItem>
+                          <MenuItem
+                            key={x.id}
+                            selected={x.id === project?.id}
+                            value={x.id}
+                          >
+                            {x.name}
+                          </MenuItem>
                         ))}
                       </Select>
                     </FormControl>
@@ -83,9 +84,9 @@ const HomePage = () => {
               Almost there! You just have to decide what you want to track. Diaper changes, how many times you have to
               feed your baby? Or something completely different?
             </Typography>
-            <TaskTypeForm
+            <TaskTypeFormCreate
               projectId={project.id}
-              onSubmit={createTaskType}
+              onCreated={handleCreatedTaskType}
             />
           </>
         )}

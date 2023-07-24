@@ -18,5 +18,8 @@ public interface IProjectService
     Task<ProjectMemberInviteDto> RespondToInvite(ProjectMemberInviteResponse response, string? userId, CancellationToken token = default);
     
     Task<IEnumerable<ProjectMemberDto>> GetMembers(string id, string userId, CancellationToken token = default);
+
     Task<ProjectMemberInviteDto> GetInvite(string id, CancellationToken token = default);
+
+    Task<ProjectDto> Update(string id, UpdateProjectDto update, string userId, CancellationToken token = default);
 }

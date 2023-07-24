@@ -1,40 +1,31 @@
 import { ChildCare } from '@mui/icons-material'
 import {
-    Button,
-    Collapse,
-    Grid,
-    List,
-    ListItem,
-    ListItemButton,
-    ListItemIcon,
-    ListItemText,
-    Typography
+  Button,
+  Collapse,
+  Grid,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Typography
 } from '@mui/material'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Api } from '../api'
 import { CreateProjectDto } from '../api/ApiClient'
-import Loading from '../components/Loading'
-import ProjectForm from '../components/project/ProjectForm'
+import { ProjectFormCreate } from '../components/project/ProjectForm'
+import Loading from '../components/shared/Loading'
 import { useData } from '../hooks/useData'
-import { useToast } from '../hooks/useToast'
 
-type Props = {}
-
-const SettingsPage = ({}: Props) => {
-  const toast = useToast()
+const SettingsPage = () => {
   const navigate = useNavigate()
   const [projects, updateProjects] = useData(() => Api.getMyProjects())
   const [showCreateProject, setShowCreateProject] = useState(false)
 
-  const createProject = async (project: CreateProjectDto) => {
-    try {
-      const created = await Api.createProject(project)
-      toast.success(`${created.name} has been registered`)
-      updateProjects()
-    } finally {
-      setShowCreateProject(false)
-    }
+  const handleCreatedProject = async (project: CreateProjectDto) => {
+    updateProjects()
+    setShowCreateProject(false)
   }
   return (
     <Grid
@@ -69,7 +60,7 @@ const SettingsPage = ({}: Props) => {
               {!showCreateProject && <Button onClick={() => setShowCreateProject(true)}>Add</Button>}
 
               <Collapse in={showCreateProject}>
-                <ProjectForm onSubmit={createProject} />
+                <ProjectFormCreate onCreated={handleCreatedProject} />
               </Collapse>
             </>
           )}

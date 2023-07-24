@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { smartFormatDate } from '../utils/DateUtils'
+import { smartFormatDate } from '../../utils/DateUtils'
 
 type Props = { date: Date }
 

@@ -69,6 +69,12 @@ public class ProjectController : ControllerBase
         await _projectService.Delete(id, token);
     }
 
+    [HttpPut("{id}")]
+    public async Task<ProjectDto> UpdateProject([FromRoute] string id, [FromBody] UpdateProjectDto update, CancellationToken token)
+    {
+        return await _projectService.Update(id, update, User.GetSubjectId(), token);
+    }
+
     [HttpGet("{id}/members")]
     public async Task<IEnumerable<ProjectMemberDto>> GetMembers([FromRoute] string id, CancellationToken token)
     {

@@ -1,42 +1,40 @@
-import { Delete, Edit, Save } from '@mui/icons-material'
 import {
+  Alert,
   Button,
   Collapse,
   Grid,
-  IconButton,
-  InputAdornment,
   List,
-  ListItem,
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  TextField,
   Typography
 } from '@mui/material'
-import { FormEvent, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useState } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
 import { Api } from '../api'
-import { CreateProjectMemberInviteDto, CreateTaskType, ProjectDto, ProjectMemberDto } from '../api/ApiClient'
-import Loading from '../components/Loading'
-import TaskIcon from '../components/TaskIcon'
-import TaskTypeForm from '../components/taskType/TaskTypeForm'
+import { CreateTaskType, ProjectDto, ProjectMemberDto } from '../api/ApiClient'
+import MemberList from '../components/members/MemberList'
+import SendMemberInvite from '../components/members/SendMemberInvite'
+import { ProjectFormUpdate } from '../components/project/ProjectForm'
+import Loading from '../components/shared/Loading'
+import TaskIcon from '../components/taskType/TaskIcon'
 import { useData } from '../hooks/useData'
 import { useToast } from '../hooks/useToast'
+import { TaskTypeFormCreate } from '../components/taskType/TaskTypeForm'
 
 const ProjectSettingsPage = () => {
   const toast = useToast()
   const params = useParams<{ id: string }>()
-  const [email, setEmail] = useState('')
-  const [members, updateMembers] = useData<ProjectMemberDto[], string>(
+  const navigate = useNavigate()
+  const [showCreateTaskType, setShowCreateTaskType] = useState(false)
+  const [members] = useData<ProjectMemberDto[], string>(
     async (id?: string) => (id ? Api.getMembers(id) : []),
     params.id
   )
-  const [project, updateProject] = useData<ProjectDto, string>(
+  const [project, , updateProject] = useData<ProjectDto, string>(
     async (id?: string) => (id ? Api.getProject(id) : undefined),
     params.id
   )
-  const [showCreateTaskType, setShowCreateTaskType] = useState(false)
-  const [showInviteMember, setShowInviteMember] = useState(false)
 
   const createTaskType = async (taskType: CreateTaskType) => {
     const created = await Api.createTaskType(taskType)
@@ -45,23 +43,8 @@ const ProjectSettingsPage = () => {
     setShowCreateTaskType(false)
   }
 
-  const sendInvite = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    await Api.inviteProjectMember(
-      params.id!,
-      new CreateProjectMemberInviteDto({
-        email
-      })
-    )
-
-    setShowInviteMember(false)
-    toast.success(`Invitation sent to ${email}`)
-  }
-
-  const deleteTaskType = async (id: string) => {
-    await Api.deleteTaskType(id)
-    updateProject()
-    toast.success('Task type has been deleted')
+  const handleProjectUpdated = async (project: ProjectDto) => {
+    await updateProject(project)
   }
 
   if (!params.id) return null
@@ -70,61 +53,57 @@ const ProjectSettingsPage = () => {
     <Grid
       container
       justifyContent="center"
+      spacing={4}
     >
-      <Grid
-        item
-        xs={11}
-      >
-        <Loading {...project}>
-          {(data) => (
-            <>
-              <Typography variant="h4">
-                {data.name}{' '}
-                <IconButton>
-                  <Edit />
-                </IconButton>
-              </Typography>
-
+      <Loading {...project}>
+        {(data) => (
+          <>
+            <Grid
+              item
+              xs={11}
+            >
+              <ProjectFormUpdate
+                onUpdated={handleProjectUpdated}
+                project={data}
+              />
+            </Grid>
+            <Grid
+              item
+              xs={11}
+            >
+              <Typography variant="h6">Task Types</Typography>
               <Typography variant="body1">Below you can add new task types or invite new members</Typography>
               <List>
                 {data.taskTypes.map((x) => (
-                  <ListItem
+                  <ListItemButton
                     key={x.id}
-                    secondaryAction={
-                      <IconButton
-                        edge="end"
-                        onClick={() => deleteTaskType(x.id)}
-                      >
-                        <Delete />
-                      </IconButton>
-                    }
+                    onClick={() => navigate(`/task-settings/${x.id}`)}
                   >
                     <ListItemIcon>
                       <TaskIcon name={x.icon} />
                     </ListItemIcon>
                     <ListItemText primary={x.displayName} />
-                  </ListItem>
+                  </ListItemButton>
                 ))}
               </List>
               {!data.taskTypes.length && (
                 <Typography variant="body1">
                   You haven't setup any tasks yet. Add something you want to track for {data.name} by pressing 'Add'
-                  below
                 </Typography>
               )}
               {!showCreateTaskType && <Button onClick={() => setShowCreateTaskType(true)}>Add</Button>}
 
               <Collapse in={showCreateTaskType}>
-                <TaskTypeForm
+                <TaskTypeFormCreate
                   projectId={data.id}
-                  onSubmit={createTaskType}
+                  onCreated={createTaskType}
                   onCancel={() => setShowCreateTaskType(false)}
                 />
               </Collapse>
-            </>
-          )}
-        </Loading>
-      </Grid>
+            </Grid>
+          </>
+        )}
+      </Loading>
 
       <Loading {...members}>
         {(data) => (
@@ -133,51 +112,21 @@ const ProjectSettingsPage = () => {
             xs={11}
           >
             <Typography variant="h6">Administrators</Typography>
-            <List dense>
-              {data
-                .filter((x) => x.isAdmin)
-                .map((x) => (
-                  <ListItem key={x.id}>{x.user?.fullName}</ListItem>
-                ))}
-            </List>
+            <MemberList
+              members={data}
+              show="admins"
+            />
 
             <Typography variant="h6">Members</Typography>
-            <List dense>
-              {data
-                .filter((x) => !x.isAdmin)
-                .map((x) => (
-                  <ListItem key={x.id}>{x.user?.fullName}</ListItem>
-                ))}
+            <MemberList
+              members={data}
+              show="members"
+            />
 
-              <form onSubmit={sendInvite}>
-                <Collapse in={showInviteMember}>
-                  {showInviteMember && (
-                    <TextField
-                      name="invite-email"
-                      type="email"
-                      required
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="Enter someones email"
-                      label="Email"
-                      InputProps={{
-                        endAdornment: (
-                          <InputAdornment position="end">
-                            <IconButton
-                              type="submit"
-                              edge="end"
-                            >
-                              <Save />
-                            </IconButton>
-                          </InputAdornment>
-                        )
-                      }}
-                    />
-                  )}
-                </Collapse>
-              </form>
-              {!showInviteMember && <Button onClick={() => setShowInviteMember(true)}>Invite member</Button>}
-            </List>
+            {params.id && <SendMemberInvite projectId={params.id} />}
+
+            <Typography variant="h6">Invites</Typography>
+            <Alert severity="info">New feature coming soon - undo and view inprogress member invites</Alert>
           </Grid>
         )}
       </Loading>

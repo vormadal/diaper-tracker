@@ -39,7 +39,7 @@ public class MemberInviteController : ControllerBase
             Id = id,
             Response = InviteResponse.Accepted
         };
-        return await _projectService.RespondToInvite(response, User.FindFirst(ClaimTypes.NameIdentifier)?.Value, token);
+        return await _projectService.RespondToInvite(response, User.GetSubjectId(), token);
     }
 
     [HttpPost("{id}/decline")]

@@ -17,12 +17,12 @@ import { useContext, useEffect, useState } from 'react'
 import { Api } from '../api'
 import { CreateTaskDto, TaskTypeDto } from '../api/ApiClient'
 import { useData } from '../hooks/useData'
-import { ExpandMore } from './ExpandMore'
-import Loading from './Loading'
-import TaskIcon from './TaskIcon'
+import { ExpandMore } from './shared/ExpandMore'
+import Loading from './shared/Loading'
+import TaskIcon from './taskType/TaskIcon'
 import { useToast } from '../hooks/useToast'
 import UserContext from '../contexts/UserContext'
-import SmartDate from './SmartDate'
+import SmartDate from './shared/SmartDate'
 
 type Props = { taskType: TaskTypeDto }
 

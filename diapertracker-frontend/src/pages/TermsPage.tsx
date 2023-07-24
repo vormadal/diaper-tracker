@@ -2,7 +2,10 @@ import { Grid } from '@mui/material'
 
 const TermsPage = () => {
   return (
-    <Grid container justifyContent='center'>
+    <Grid
+      container
+      justifyContent="center"
+    >
       <Grid
         item
         xs={11}
@@ -55,6 +58,7 @@ const TermsPage = () => {
               that form the entire agreement between You and the Company regarding the use of the Service. This Terms
               and Conditions agreement has been created with the help of the{' '}
               <a
+                rel="noreferrer"
                 href="https://www.freeprivacypolicy.com/free-terms-and-conditions-generator/"
                 target="_blank"
               >
@@ -75,7 +79,7 @@ const TermsPage = () => {
               <strong>Website</strong> refers to Diaper Tracker, accessible from{' '}
               <a
                 href="https://diapertracker.vormadal.com"
-                rel="external nofollow noopener"
+                rel="noreferrer"
                 target="_blank"
               >
                 https://diapertracker.vormadal.com
@@ -248,7 +252,7 @@ const TermsPage = () => {
               By visiting this page on our website:{' '}
               <a
                 href="https://diapertracker.vormadal.com"
-                rel="external nofollow noopener"
+                rel="noreferrer"
                 target="_blank"
               >
                 https://diapertracker.vormadal.com

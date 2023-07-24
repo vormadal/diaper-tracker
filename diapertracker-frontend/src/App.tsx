@@ -5,19 +5,20 @@ import './App.css'
 import { Api } from './api'
 import { UserProfile } from './api/ApiClient'
 import NavigationBar from './components/NavigationBar'
-import Toast from './components/Toast'
+import Toast from './components/shared/Toast'
 import { theme } from './config/Theme'
 import UserContext from './contexts/UserContext'
 import { useData } from './hooks/useData'
 import { useToast } from './hooks/useToast'
 import HomePage from './pages/HomePage'
 import LandingPage from './pages/LandingPage'
-import Spinner from './components/Spinner'
+import Spinner from './components/shared/Spinner'
 import PrivacyPage from './pages/PrivacyPage'
 import TermsPage from './pages/TermsPage'
 import SettingsPage from './pages/SettingsPage'
 import ProjectSettingsPage from './pages/ProjectSettingsPage'
 import InvitationPage from './pages/InvitationPage'
+import TaskTypeSettingsPage from './pages/TaskTypeSettingsPage'
 
 function App() {
   const [user, refreshUser] = useData(() => Api.me())
@@ -62,6 +63,10 @@ function App() {
                   element={<TermsPage />}
                 />
                 <Route
+                  path="task-settings/:id"
+                  element={<TaskTypeSettingsPage />}
+                />
+                <Route
                   path="settings/:id"
                   element={<ProjectSettingsPage />}
                 />
@@ -69,6 +74,7 @@ function App() {
                   path="settings"
                   element={<SettingsPage />}
                 />
+
                 <Route
                   path="invite/:id"
                   element={<InvitationPage />}

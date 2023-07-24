@@ -7,7 +7,8 @@ type UseDataContent<T, A> = [
     loading: boolean
     data?: T
   },
-  (arg?: A) => Promise<void>
+  (arg?: A) => Promise<void>,
+  (data?: T) => void
 ]
 export const useData = <T, A>(loader: loaderType<T, A>, initialArg?: A): UseDataContent<T, A> => {
   const [error, setError] = useState<string>()
@@ -31,7 +32,7 @@ export const useData = <T, A>(loader: loaderType<T, A>, initialArg?: A): UseData
     load(initialArg)
   }, [initialArg])
 
-  const reload = async (args?: A) => {
+  const reload = async (args?: A, obj?: T) => {
     if (args && typeof args !== 'object') {
       load(args)
     } else if (initialArg) {
@@ -41,5 +42,5 @@ export const useData = <T, A>(loader: loaderType<T, A>, initialArg?: A): UseData
     }
   }
 
-  return [{ error, loading, data }, reload]
+  return [{ error, loading, data }, reload, setData]
 }

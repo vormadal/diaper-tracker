@@ -1,28 +1,30 @@
 import { FormEvent, useState } from 'react'
-import { CreateTaskType } from '../../api/ApiClient'
+import { CreateTaskType, TaskTypeDto, UpdateTaskTypeDto } from '../../api/ApiClient'
 import { Button, TextField } from '@mui/material'
+import { Api } from '../../api'
+import { useToast } from '../../hooks/useToast'
 
-type Props = {
-  projectId: string
-  onSubmit: (taskType: CreateTaskType) => void | Promise<void>
-  onCancel?: () => void | Promise<void>
+interface TaskTypeValues {
+  displayName: string
+  icon: string
 }
 
-const TaskTypeForm = ({ projectId, onSubmit, onCancel }: Props) => {
-  const [name, setName] = useState('')
-  const [icon, setIcon] = useState('')
+type Props = {
+  onSubmit: (values: TaskTypeValues) => void | Promise<void>
+  onCancel?: () => void | Promise<void>
+  initialValues?: TaskTypeValues
+  submitButtonLabel?: string
+}
+
+const TaskTypeForm = ({ submitButtonLabel, initialValues, onSubmit, onCancel }: Props) => {
+  const [displayName, setName] = useState(initialValues?.displayName || '')
+  const [icon, setIcon] = useState(initialValues?.icon || '')
   const [disabled, setDisabled] = useState(false)
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setDisabled(true)
     try {
-      await onSubmit(
-        new CreateTaskType({
-          displayName: name,
-          icon: icon,
-          projectId: projectId
-        })
-      )
+      await onSubmit({ displayName, icon })
     } finally {
       setDisabled(false)
     }
@@ -31,14 +33,16 @@ const TaskTypeForm = ({ projectId, onSubmit, onCancel }: Props) => {
     <form onSubmit={handleSubmit}>
       <TextField
         name="displayName"
-        label="Name"
-        value={name}
+        label="Task to track"
+        placeholder="Diaper change, feeding..."
+        value={displayName}
         onChange={(e) => setName(e.target.value)}
         required
       />
       <TextField
         name="icon"
         label="Icon Name"
+        placeholder="diaper or feeding"
         value={icon}
         onChange={(e) => setIcon(e.target.value)}
         required
@@ -47,13 +51,13 @@ const TaskTypeForm = ({ projectId, onSubmit, onCancel }: Props) => {
         disabled={disabled}
         type="submit"
       >
-        Create
+        {submitButtonLabel || 'Create'}
       </Button>
       {onCancel && (
         <Button
           disabled={disabled}
           color="inherit"
-          variant='text'
+          variant="text"
           onClick={onCancel}
         >
           Cancel
@@ -63,4 +67,70 @@ const TaskTypeForm = ({ projectId, onSubmit, onCancel }: Props) => {
   )
 }
 
-export default TaskTypeForm
+interface TaskTypeFormCreateProps {
+  onCreated: (taskType: TaskTypeDto) => void | Promise<void>
+  onCancel?: () => void
+  projectId: string
+}
+
+export const TaskTypeFormCreate = ({ projectId, onCreated, onCancel }: TaskTypeFormCreateProps) => {
+  const toast = useToast()
+  const handleSubmit = async (values: TaskTypeValues) => {
+    try {
+      const created = await Api.createTaskType(
+        new CreateTaskType({
+          displayName: values.displayName,
+          icon: values.icon,
+          projectId: projectId
+        })
+      )
+      toast.success(`${created.displayName} has been created`)
+      await onCreated(created)
+    } catch (e: any) {
+      toast.error(e.message)
+    }
+  }
+  return (
+    <>
+      <TaskTypeForm
+        onSubmit={handleSubmit}
+        onCancel={onCancel}
+      />
+    </>
+  )
+}
+
+interface TaskTypeFormUpdateProps {
+  onUpdated?: (taskType: TaskTypeDto) => void | Promise<void>
+  onCancel?: () => void | Promise<void>
+  taskType: TaskTypeDto
+}
+
+export const TaskTypeFormUpdate = ({ taskType, onUpdated, onCancel }: TaskTypeFormUpdateProps) => {
+  const toast = useToast()
+  const handleSubmit = async (values: TaskTypeValues) => {
+    try {
+      const updated = await Api.updateTaskType(
+        taskType.id,
+        new UpdateTaskTypeDto({
+          displayName: values.displayName,
+          icon: values.icon
+        })
+      )
+      toast.success(`${updated.displayName} has been updated`)
+      onUpdated && (await onUpdated(updated))
+    } catch (e: any) {
+      toast.error(e.message)
+    }
+  }
+  return (
+    <>
+      <TaskTypeForm
+        onSubmit={handleSubmit}
+        onCancel={onCancel}
+        initialValues={taskType}
+        submitButtonLabel="Save"
+      />
+    </>
+  )
+}

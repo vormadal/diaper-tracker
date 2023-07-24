@@ -1,4 +1,5 @@
 ﻿using DiaperTracker.Contracts.Person;
+using DiaperTracker.Contracts.TaskType;
 using DiaperTracker.Domain;
 using DiaperTracker.Domain.Repositories;
 using DiaperTracker.Services.Abstractions;
@@ -48,5 +49,34 @@ public class TaskTypeService : ITaskTypeService
         taskType.IsDeleted = true;
         await _taskTypeRepository.Update(taskType, token);
         await _unitOfWork.SaveChangesAsync();
+    }
+
+    public async Task<TaskTypeDto> FindById(string id, string userId, CancellationToken token = default)
+    {
+        var existing = await _taskTypeRepository.FindById(id, token);
+        var project = await _projectRepository.FindById(existing.ProjectId, false, token);
+
+        if (!project.Members.Any(x => x.UserId == userId && x.IsAdmin))
+        {
+            throw new Exception("You are not allowed");
+        }
+
+        return existing.Adapt<TaskTypeDto>();
+    }
+
+    public async Task<TaskTypeDto> Update(string id, UpdateTaskTypeDto taskType, string userId, CancellationToken token = default)
+    {
+        var existing = await _taskTypeRepository.FindById(id, token);
+        var project = await _projectRepository.FindById(existing.ProjectId, false, token);
+
+        if (!project.Members.Any(x => x.UserId == userId && x.IsAdmin))
+        {
+            throw new Exception("You are not allowed");
+        }
+
+
+        var updated = await _taskTypeRepository.Update(taskType.Adapt(existing), token);
+        await _unitOfWork.SaveChangesAsync();
+        return updated.Adapt<TaskTypeDto>();
     }
 }

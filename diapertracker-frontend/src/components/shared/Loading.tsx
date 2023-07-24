@@ -10,7 +10,7 @@ type Props<T> = {
 }
 
 function Loading<T>({ children, loading, error, retry, data }: Props<T>) {
-  if (loading) return <Spinner show />
+  if (loading && !data) return <Spinner show />
   if (error)
     return (
       <Alert
@@ -31,7 +31,7 @@ function Loading<T>({ children, loading, error, retry, data }: Props<T>) {
       </Alert>
     )
 
-  if (data) return children(data)
+  if (data) return <>{children(data)}</>
   return null
 }
 

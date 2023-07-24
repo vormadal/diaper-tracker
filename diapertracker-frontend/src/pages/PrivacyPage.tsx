@@ -21,6 +21,7 @@ const PrivacyPage = () => {
           <a
             href="https://www.freeprivacypolicy.com/free-privacy-policy-generator/"
             target="_blank"
+            rel="noreferrer"
           >
             Free Privacy Policy Generator
           </a>
@@ -101,7 +102,7 @@ const PrivacyPage = () => {
               <strong>Website</strong> refers to Diaper Tracker, accessible from{' '}
               <a
                 href="https://diapertracker.vormadal.com"
-                rel="external nofollow noopener"
+                rel="noreferrer"
                 target="_blank"
               >
                 https://diapertracker.vormadal.com
@@ -179,6 +180,7 @@ const PrivacyPage = () => {
           <a
             href="https://www.freeprivacypolicy.com/blog/sample-privacy-policy-template/#Use_Of_Cookies_And_Tracking"
             target="_blank"
+            rel="noreferrer"
           >
             Free Privacy Policy website
           </a>{' '}

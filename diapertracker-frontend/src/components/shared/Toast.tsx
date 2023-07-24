@@ -1,6 +1,6 @@
 import { Alert, Snackbar } from '@mui/material'
 import { useEffect, useState } from 'react'
-import { ToastContext } from '../hooks/useToast'
+import { ToastContext } from '../../hooks/useToast'
 
 type Props = {
   children?: React.ReactNode
@@ -11,12 +11,6 @@ interface SnackbarMessage {
   message: string
   level: MessageLevel
   key: number
-}
-
-interface State {
-  open: boolean
-  snackPack: readonly SnackbarMessage[]
-  messageInfo?: SnackbarMessage
 }
 
 const Toast = ({ children }: Props) => {

@@ -562,6 +562,65 @@ export class ApiClient {
     }
 
     /**
+     * @param body (optional) 
+     * @return Success
+     */
+    updateProject(id: string, body: UpdateProjectDto | undefined, cancelToken?: CancelToken | undefined): Promise<ProjectDto> {
+        let url_ = this.baseUrl + "/api/projects/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_: AxiosRequestConfig = {
+            data: content_,
+            method: "PUT",
+            url: url_,
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            },
+            cancelToken
+        };
+
+        return this.instance.request(options_).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
+            return this.processUpdateProject(_response);
+        });
+    }
+
+    protected processUpdateProject(response: AxiosResponse): Promise<ProjectDto> {
+        const status = response.status;
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (let k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
+        if (status === 200) {
+            const _responseText = response.data;
+            let result200: any = null;
+            let resultData200  = _responseText;
+            result200 = ProjectDto.fromJS(resultData200);
+            return Promise.resolve<ProjectDto>(result200);
+
+        } else if (status !== 200 && status !== 204) {
+            const _responseText = response.data;
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        }
+        return Promise.resolve<ProjectDto>(null as any);
+    }
+
+    /**
      * @return Success
      */
     getMembers(id: string, cancelToken?: CancelToken | undefined): Promise<ProjectMemberDto[]> {
@@ -1039,6 +1098,119 @@ export class ApiClient {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
         }
         return Promise.resolve<TaskRecordDto[]>(null as any);
+    }
+
+    /**
+     * @return Success
+     */
+    getTaskType(id: string, cancelToken?: CancelToken | undefined): Promise<TaskTypeDto> {
+        let url_ = this.baseUrl + "/api/task-types/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: AxiosRequestConfig = {
+            method: "GET",
+            url: url_,
+            headers: {
+                "Accept": "application/json"
+            },
+            cancelToken
+        };
+
+        return this.instance.request(options_).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
+            return this.processGetTaskType(_response);
+        });
+    }
+
+    protected processGetTaskType(response: AxiosResponse): Promise<TaskTypeDto> {
+        const status = response.status;
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (let k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
+        if (status === 200) {
+            const _responseText = response.data;
+            let result200: any = null;
+            let resultData200  = _responseText;
+            result200 = TaskTypeDto.fromJS(resultData200);
+            return Promise.resolve<TaskTypeDto>(result200);
+
+        } else if (status !== 200 && status !== 204) {
+            const _responseText = response.data;
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        }
+        return Promise.resolve<TaskTypeDto>(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return Success
+     */
+    updateTaskType(id: string, body: UpdateTaskTypeDto | undefined, cancelToken?: CancelToken | undefined): Promise<TaskTypeDto> {
+        let url_ = this.baseUrl + "/api/task-types/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_: AxiosRequestConfig = {
+            data: content_,
+            method: "PUT",
+            url: url_,
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            },
+            cancelToken
+        };
+
+        return this.instance.request(options_).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
+            return this.processUpdateTaskType(_response);
+        });
+    }
+
+    protected processUpdateTaskType(response: AxiosResponse): Promise<TaskTypeDto> {
+        const status = response.status;
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (let k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
+        if (status === 200) {
+            const _responseText = response.data;
+            let result200: any = null;
+            let resultData200  = _responseText;
+            result200 = TaskTypeDto.fromJS(resultData200);
+            return Promise.resolve<TaskTypeDto>(result200);
+
+        } else if (status !== 200 && status !== 204) {
+            const _responseText = response.data;
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        }
+        return Promise.resolve<TaskTypeDto>(null as any);
     }
 
     /**
@@ -1563,6 +1735,42 @@ export interface ITaskTypeDto {
     projectId: string;
 }
 
+export class UpdateProjectDto implements IUpdateProjectDto {
+    name!: string;
+
+    constructor(data?: IUpdateProjectDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["name"];
+        }
+    }
+
+    static fromJS(data: any): UpdateProjectDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateProjectDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        return data;
+    }
+}
+
+export interface IUpdateProjectDto {
+    name: string;
+}
+
 export class UpdateTaskDto implements IUpdateTaskDto {
     date!: Date;
 
@@ -1597,6 +1805,46 @@ export class UpdateTaskDto implements IUpdateTaskDto {
 
 export interface IUpdateTaskDto {
     date: Date;
+}
+
+export class UpdateTaskTypeDto implements IUpdateTaskTypeDto {
+    displayName!: string;
+    icon!: string;
+
+    constructor(data?: IUpdateTaskTypeDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.displayName = _data["displayName"];
+            this.icon = _data["icon"];
+        }
+    }
+
+    static fromJS(data: any): UpdateTaskTypeDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateTaskTypeDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["displayName"] = this.displayName;
+        data["icon"] = this.icon;
+        return data;
+    }
+}
+
+export interface IUpdateTaskTypeDto {
+    displayName: string;
+    icon: string;
 }
 
 export class UserDto implements IUserDto {

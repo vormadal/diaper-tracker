@@ -123,10 +123,10 @@ public class ProjectService : IProjectService
         await _emailService.SendEmail(invite.Email, "Invitation for DiaperTracker",
             @$"
 <h1>You have been invited to {project.Name} on DiaperTracker</h1>
-<p>Click on this <a href=""{_options.Value.InvitationUrl}{created.Id}"">link</a></p>
+<p>Click on this <a href=""{_options.Value.InvitationUrl}{created.Id}"">link</a> to respond to the invite</p>
 <br/>
 <p>Best regards,</p>
-<p>The Diaper Team ;)</p>
+<p>The Diaper Team</p>
 ");
 
 
@@ -192,7 +192,22 @@ public class ProjectService : IProjectService
     public async Task<ProjectMemberInviteDto> GetInvite(string id, CancellationToken token = default)
     {
         var invite = await _projectMemberInviteRepository.FindById(id, token);
-        
+
         return invite.Adapt<ProjectMemberInviteDto>();
+    }
+
+    public async Task<ProjectDto> Update(string id, UpdateProjectDto update, string userId, CancellationToken token = default)
+    {
+        var project = await _projectRepository.FindById(id, false, token);
+
+        if(!project.Members.Any(x => x.UserId == userId && x.IsAdmin))
+        {
+            throw new Exception("You don't have access to this");
+        }
+
+        await _projectRepository.Update(update.Adapt(project), token);
+        await _unitOfWork.SaveChangesAsync(token);
+
+        return project.Adapt<ProjectDto>();
     }
 }

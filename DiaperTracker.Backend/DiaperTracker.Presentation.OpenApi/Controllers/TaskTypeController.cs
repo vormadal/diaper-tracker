@@ -1,5 +1,6 @@
 ﻿using DiaperTracker.Contracts.Person;
 using DiaperTracker.Contracts.Task;
+using DiaperTracker.Contracts.TaskType;
 using DiaperTracker.Services.Abstractions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -36,6 +37,21 @@ public class TaskTypeController : ControllerBase
         CancellationToken token)
     {
             return await _taskRecordService.GetByProjectAndType(null, id, count, token);
+    }
+
+    [HttpGet("{id}")]
+    public async Task<TaskTypeDto> GetTaskType([FromRoute] string id, CancellationToken token)
+    {
+        return await _taskTypeService.FindById(id, User.GetSubjectId(), token);
+    }
+
+    [HttpPut("{id}")]
+    public async Task<TaskTypeDto> UpdateTaskType(
+        [FromRoute] string id,
+        [FromBody] UpdateTaskTypeDto taskType,
+        CancellationToken token)
+    {
+        return await _taskTypeService.Update(id, taskType, User.GetSubjectId(), token);
     }
 
     [HttpDelete("{id}")]

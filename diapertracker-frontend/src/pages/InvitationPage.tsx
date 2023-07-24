@@ -3,15 +3,13 @@ import { useNavigate, useParams } from 'react-router-dom'
 import Login from '../components/login/Login'
 import { useData } from '../hooks/useData'
 import { Api } from '../api'
-import Loading from '../components/Loading'
+import Loading from '../components/shared/Loading'
 import { useContext, useState } from 'react'
 import UserContext from '../contexts/UserContext'
 import { useToast } from '../hooks/useToast'
-import Spinner from '../components/Spinner'
+import Spinner from '../components/shared/Spinner'
 
-type Props = {}
-
-const InvitationPage = ({}: Props) => {
+const InvitationPage = () => {
   const params = useParams<{ id: string }>()
   const toast = useToast()
   const navigate = useNavigate()
