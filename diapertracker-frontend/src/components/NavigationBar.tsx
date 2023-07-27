@@ -24,7 +24,7 @@ type Props = {
 }
 
 const NavbarConfig = {
-  title: 'Diaper Tracker',
+  title: 'DiaperTracker',
   icon: ({ sx }: { sx: SxProps<Theme> }) => <BannerIcon sx={sx} />,
   pages: [
     {
@@ -143,7 +143,7 @@ const NavigationBar = ({ handleLogout }: Props) => {
 
           {/* title - show on small screen */}
           <Typography
-            variant="h5"
+            variant="h6"
             noWrap
             component="a"
             href=""
@@ -153,7 +153,7 @@ const NavigationBar = ({ handleLogout }: Props) => {
               flexGrow: 1,
               fontFamily: 'monospace',
               fontWeight: 700,
-              letterSpacing: '.3rem',
+              letterSpacing: '.2rem',
               color: 'inherit',
               textDecoration: 'none'
             }}
