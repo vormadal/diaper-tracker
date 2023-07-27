@@ -1,9 +1,11 @@
 import { Google } from '@mui/icons-material'
 import { useEffect, useState } from 'react'
 import LoginButton from './LoginButton'
+import { LoginStatus } from './LoginStatus'
+import { LoginPayload } from './LoginPayload'
 
-type Props = {
-  onResponse: (token: string) => Promise<void>
+interface Props {
+  onResponse: (status: LoginStatus, payload: LoginPayload) => Promise<void>
 }
 
 const GoogleLogin = ({ onResponse }: Props) => {
@@ -16,7 +18,10 @@ const GoogleLogin = ({ onResponse }: Props) => {
       client_id: process.env.REACT_APP_GOOGLE_CLIENT_ID!,
       scope: 'https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile',
       callback: (response) => {
-        onResponse(response.access_token)
+        onResponse(LoginStatus.LoggedIn, { token: response.access_token })
+      },
+      error_callback(error) {
+        onResponse(LoginStatus.Cancelled, { error: error.message })
       }
     })
 
@@ -29,6 +34,7 @@ const GoogleLogin = ({ onResponse }: Props) => {
   }, [])
 
   const onClick = () => {
+    onResponse(LoginStatus.InProgress, {})
     client?.requestAccessToken()
   }
 

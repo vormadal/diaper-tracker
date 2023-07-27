@@ -18,29 +18,25 @@ import SendMemberInvite from '../components/members/SendMemberInvite'
 import { ProjectFormUpdate } from '../components/project/ProjectForm'
 import Loading from '../components/shared/Loading'
 import TaskIcon from '../components/taskType/TaskIcon'
-import { useData } from '../hooks/useData'
-import { useToast } from '../hooks/useToast'
 import { TaskTypeFormCreate } from '../components/taskType/TaskTypeForm'
+import { useData } from '../hooks/useData'
 
 const ProjectSettingsPage = () => {
-  const toast = useToast()
-  const params = useParams<{ id: string }>()
+    const params = useParams<{ id: string }>()
   const navigate = useNavigate()
   const [showCreateTaskType, setShowCreateTaskType] = useState(false)
   const [members] = useData<ProjectMemberDto[], string>(
     async (id?: string) => (id ? Api.getMembers(id) : []),
     params.id
   )
-  const [project, , updateProject] = useData<ProjectDto, string>(
+  const [project, refreshProject, updateProject] = useData<ProjectDto, string>(
     async (id?: string) => (id ? Api.getProject(id) : undefined),
     params.id
   )
 
-  const createTaskType = async (taskType: CreateTaskType) => {
-    const created = await Api.createTaskType(taskType)
-    toast.success(`${created.displayName} has been added`)
-    updateProject()
+  const handleTaskTypeCreated = async (taskType: CreateTaskType) => {
     setShowCreateTaskType(false)
+    refreshProject()
   }
 
   const handleProjectUpdated = async (project: ProjectDto) => {
@@ -96,7 +92,7 @@ const ProjectSettingsPage = () => {
               <Collapse in={showCreateTaskType}>
                 <TaskTypeFormCreate
                   projectId={data.id}
-                  onCreated={createTaskType}
+                  onCreated={handleTaskTypeCreated}
                   onCancel={() => setShowCreateTaskType(false)}
                 />
               </Collapse>

@@ -1,11 +1,12 @@
 import { Card, CardContent, CardMedia, Grid, Typography } from '@mui/material'
 import Login from '../components/login/Login'
+import { LoginStatus } from '../components/login/LoginStatus'
 
 type Props = {
-  onLogin: () => void
+  onLoginChange: (status: LoginStatus) => void | Promise<void>
 }
 
-const LandingPage = ({ onLogin }: Props) => {
+const LandingPage = ({ onLoginChange }: Props) => {
   return (
     <Grid
       container
@@ -51,7 +52,7 @@ const LandingPage = ({ onLogin }: Props) => {
       <Grid
         item
         container
-        justifyContent='center'
+        justifyContent="center"
         xs={12}
       >
         <Grid
@@ -65,7 +66,7 @@ const LandingPage = ({ onLogin }: Props) => {
           >
             To get started use one of the login options below.
           </Typography>
-          <Login isLoggedIn={async () => onLogin()} />
+          <Login onChange={onLoginChange} />
         </Grid>
       </Grid>
     </Grid>

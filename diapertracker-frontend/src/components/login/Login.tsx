@@ -2,16 +2,22 @@ import { Api } from '../../api'
 import { ExternalLoginRequest } from '../../api/ApiClient'
 import { useToast } from '../../hooks/useToast'
 import GoogleLogin from './GoogleLogin'
+import { LoginPayload } from './LoginPayload'
+import { LoginStatus } from './LoginStatus'
 type Props = {
-  isLoggedIn: () => Promise<void>
+  onChange: (status: LoginStatus) => Promise<void> | void
 }
 
-const Login = ({ isLoggedIn: callback }: Props) => {
+const Login = ({ onChange }: Props) => {
   const toast = useToast()
-  const handleCallback = (provider: string) => async (token: string) => {
+  const handleCallback = (provider: string) => async (status: LoginStatus, payload: LoginPayload) => {
+    if (status !== LoginStatus.LoggedIn) {
+      onChange(status)
+      return
+    }
     try {
-      await Api.externalLogin(provider, new ExternalLoginRequest({ token }))
-      await callback()
+      await Api.externalLogin(provider, new ExternalLoginRequest({ token: payload.token }))
+      await onChange(status)
     } catch (e: any) {
       toast.error(e.message)
     }

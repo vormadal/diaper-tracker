@@ -7,10 +7,11 @@ type Props<T> = {
   error?: string
   retry?: () => Promise<void>
   data?: T
+  showReloads?: boolean
 }
 
-function Loading<T>({ children, loading, error, retry, data }: Props<T>) {
-  if (loading && !data) return <Spinner show />
+function Loading<T>({ children, loading, error, retry, data, showReloads }: Props<T>) {
+  if (loading && (!data || showReloads)) return <Spinner show />
   if (error)
     return (
       <Alert

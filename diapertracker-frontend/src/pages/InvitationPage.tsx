@@ -88,7 +88,7 @@ const InvitationPage = () => {
         {showLogin && (
           <>
             <Typography variant="body1">You need to login to accept the invite</Typography>
-            <Login isLoggedIn={async () => acceptInvite(true)}></Login>
+            <Login onChange={async () => acceptInvite(true)}></Login>
           </>
         )}
       </Grid>

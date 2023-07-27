@@ -20,7 +20,7 @@ const TaskTypeSettingsPage = () => {
 
     await Api.deleteTaskType(params.id)
     toast.success('Task type has been deleted')
-    navigate('/')
+    navigate(-1)
   }
   return (
     <Grid

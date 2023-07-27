@@ -188,6 +188,7 @@ const NavigationBar = ({ handleLogout }: Props) => {
                   sx={{ p: 0 }}
                 >
                   <Avatar
+                  
                     alt={user?.fullName}
                     src={user?.imageUrl}
                   />
