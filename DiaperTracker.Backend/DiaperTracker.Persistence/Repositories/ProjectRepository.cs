@@ -10,6 +10,11 @@ internal class ProjectRepository : RepositoryBase<Project>, IProjectRepository
     {
     }
 
+    public override Task<Project?> FindById(string id, CancellationToken token = default)
+    {
+        return FindById(id, false, token);
+    }
+
     public async Task<Project?> FindById(string id, bool includeDeleted = false, CancellationToken token = default)
     {
         var q = _set

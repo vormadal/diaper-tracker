@@ -22,8 +22,8 @@ internal class TaskRecordService : ITaskRecordService
 
     public async Task<TaskRecordDto> CreateTask(CreateTaskDto task, string userId, CancellationToken token = default)
     {
-        var project = await _projectRepository.FindById(task.ProjectId, token);
-        if(project == null || !project.TaskTypes.Any(x => x.Id == task.TypeId))
+        var project = await _projectRepository.FindById(task.ProjectId, false, token);
+        if (project == null || !project.TaskTypes.Any(x => x.Id == task.TypeId))
         {
             throw new Exception("Project or task type is incorrect");
         }
@@ -39,7 +39,7 @@ internal class TaskRecordService : ITaskRecordService
     public async Task DeleteTask(string id, CancellationToken token = default)
     {
         var record = await _taskRepository.FindById(id, token);
-        if(record is null)
+        if (record is null)
         {
             throw new EntityNotFoundException(typeof(TaskRecord), id);
         }
@@ -50,7 +50,7 @@ internal class TaskRecordService : ITaskRecordService
     public async Task<IEnumerable<TaskRecordDto>> GetAll(int? count, CancellationToken token = default)
     {
         var query = _taskRepository.FindAll(token);
-        if(count is not null)
+        if (count is not null)
         {
             return query.Take(count.Value).ToList().Adapt<IEnumerable<TaskRecordDto>>();
         }
