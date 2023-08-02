@@ -15,7 +15,7 @@ import {
 import { differenceInMinutes } from 'date-fns'
 import { useContext, useEffect, useState } from 'react'
 import { Api } from '../api'
-import { CreateTaskDto, TaskTypeDto } from '../api/ApiClient'
+import { CreateTaskDto, TaskRecordDto, TaskTypeDto } from '../api/ApiClient'
 import { useData } from '../hooks/useData'
 import { ExpandMore } from './shared/ExpandMore'
 import Loading from './shared/Loading'
@@ -23,16 +23,19 @@ import TaskIcon from './taskType/TaskIcon'
 import { useToast } from '../hooks/useToast'
 import UserContext from '../contexts/UserContext'
 import SmartDate from './shared/SmartDate'
+import TaskList from './task/TaskList'
+import { useNavigate } from 'react-router-dom'
 
 type Props = { taskType: TaskTypeDto }
 
 const BigActionCard = ({ taskType }: Props) => {
   const [expanded, setExpanded] = useState(false)
   const [disabled, setDisabled] = useState(false)
-  const [tasks, updateTasks] = useData(() => Api.getTasksOfType(taskType.id, 5))
+  const [tasks, updateTasks] = useData(() => Api.getTasksOfType(taskType.id, 5, 0, undefined))
   const toast = useToast()
   const [user] = useContext(UserContext)
   const [canUndo, setCanUndo] = useState(false)
+  const navigate = useNavigate()
 
   useEffect(() => {
     const filtered =
@@ -74,10 +77,10 @@ const BigActionCard = ({ taskType }: Props) => {
     }
   }
 
-  const deleteRecord = async (id: string) => {
+  const deleteRecord = async (task: TaskRecordDto) => {
     setDisabled(true)
     try {
-      await Api.deleteTask(id)
+      await Api.deleteTask(task.id)
       updateTasks()
       toast.success('Registrering er slettet')
     } finally {
@@ -134,38 +137,15 @@ const BigActionCard = ({ taskType }: Props) => {
         unmountOnExit
       >
         <CardContent>
-          <List>
-            <Loading {...tasks}>
-              {(data) => (
-                <>
-                  {data.map((x) => (
-                    <ListItem
-                      key={x.id}
-                      secondaryAction={
-                        x.createdBy.id === user.id ? (
-                          <IconButton
-                            edge="end"
-                            aria-label="delete"
-                            onClick={() => deleteRecord(x.id)}
-                          >
-                            <Delete />
-                          </IconButton>
-                        ) : null
-                      }
-                    >
-                      <ListItemIcon>
-                        <TaskIcon name={taskType.icon}></TaskIcon>
-                      </ListItemIcon>
-                      <ListItemText
-                        primary={<SmartDate date={x.date} />}
-                        secondary={x.createdBy.firstName || x.createdBy.fullName}
-                      />
-                    </ListItem>
-                  ))}
-                </>
-              )}
-            </Loading>
-          </List>
+          <Loading {...tasks}>
+            {(data) => (
+              <TaskList
+                tasks={data}
+                onDelete={deleteRecord}
+                onClick={(task) => navigate(`/registrations/${task.id}`)}
+              />
+            )}
+          </Loading>
         </CardContent>
       </Collapse>
     </Card>

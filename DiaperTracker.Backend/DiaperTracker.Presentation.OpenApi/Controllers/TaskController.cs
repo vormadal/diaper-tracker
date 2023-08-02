@@ -23,10 +23,20 @@ public class TaskController : ControllerBase
     public async Task<IEnumerable<TaskRecordDto>> GetTasks(
         [FromQuery] string? project,
         [FromQuery] string? type,
+        [FromQuery] int? offset,
         [FromQuery] int? count,
+        [FromQuery] string? userId,
         CancellationToken token)
     {
-        return await _taskService.GetByProjectAndType(project, type, count, token);
+        return await _taskService.GetByProjectAndType(project, type, userId, offset, count, token);
+    }
+
+    [HttpGet("{id}")]
+    public async Task<TaskRecordDto> GetTask(
+        [FromRoute] string id,
+        CancellationToken token)
+    {
+        return await _taskService.FindTask(id, token);
     }
 
     /// <summary>
@@ -48,10 +58,10 @@ public class TaskController : ControllerBase
     [HttpPut("{id}")]
     public async Task<TaskRecordDto> UpdateTask(
         [FromRoute] string id,
-        [FromBody] UpdateTaskDto relationship,
+        [FromBody] UpdateTaskDto task,
         CancellationToken token)
     {
-        return await _taskService.UpdateTask(id, relationship, token);
+        return await _taskService.UpdateTask(id, task, token);
     }
 
     [HttpDelete("{id}")]

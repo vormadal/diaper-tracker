@@ -10,7 +10,21 @@ internal class TaskRecordRepository : RepositoryBase<TaskRecord>, ITaskRecordRep
     {
     }
 
-    public async Task<IEnumerable<TaskRecord>> FindByProjectAndType(string? projectId, string? typeId, int? count, CancellationToken token = default)
+    public override Task<TaskRecord?> FindById(string id, CancellationToken token = default)
+    {
+        return _set.Where(x => x.Id == id)
+            .Include(x => x.Type)
+            .Include(x => x.CreatedBy)
+            .FirstOrDefaultAsync(token);
+    }
+
+    public async Task<IEnumerable<TaskRecord>> FindByProjectAndType(
+        string? projectId, 
+        string? typeId, 
+        string? userId,
+        int? offset, 
+        int? count, 
+        CancellationToken token = default)
     {
         var q = _set.AsQueryable();
         if(projectId is not null)
@@ -23,6 +37,12 @@ internal class TaskRecordRepository : RepositoryBase<TaskRecord>, ITaskRecordRep
             q = q.Where(x => x.TypeId ==  typeId);
         }
 
+        if (userId is not null)
+        {
+            q = q.Where(x => x.CreatedById == userId);
+        }
+
+
         var query = q
             .Include(x => x.Type)
             .Include(x => x.CreatedBy)
@@ -34,6 +54,6 @@ internal class TaskRecordRepository : RepositoryBase<TaskRecord>, ITaskRecordRep
             
         }
 
-        return query.Take(count.Value);
+        return query.Skip(offset ?? 0).Take(count.Value);
     }
 }

@@ -32,10 +32,15 @@ const NavbarConfig = {
       path: '/'
     },
     {
+      name: 'My Registrations',
+      path: '/my-registrations'
+    },
+    {
       name: 'Settings',
       path: '/settings',
       requireLogin: true
-    }
+    },
+
   ],
   settings: [
     {

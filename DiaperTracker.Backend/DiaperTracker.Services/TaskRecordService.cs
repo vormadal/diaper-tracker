@@ -47,6 +47,13 @@ internal class TaskRecordService : ITaskRecordService
         await _unitOfWork.SaveChangesAsync(token);
     }
 
+    public async Task<TaskRecordDto> FindTask(string id, CancellationToken token = default)
+    {
+        var record = await _taskRepository.FindById(id, token);
+
+        return record.Adapt<TaskRecordDto>();
+    }
+
     public async Task<IEnumerable<TaskRecordDto>> GetAll(int? count, CancellationToken token = default)
     {
         var query = _taskRepository.FindAll(token);
@@ -58,9 +65,9 @@ internal class TaskRecordService : ITaskRecordService
         return query.ToList().Adapt<IEnumerable<TaskRecordDto>>();
     }
 
-    public async Task<IEnumerable<TaskRecordDto>> GetByProjectAndType(string? projectId, string? typeId, int? count = null, CancellationToken token = default)
+    public async Task<IEnumerable<TaskRecordDto>> GetByProjectAndType(string? projectId, string? typeId, string? userId, int? offset = null, int? count = null, CancellationToken token = default)
     {
-        var results = await _taskRepository.FindByProjectAndType(projectId, typeId, count, token);
+        var results = await _taskRepository.FindByProjectAndType(projectId, typeId, userId, offset, count, token);
         return results.Adapt<IEnumerable<TaskRecordDto>>();
     }
 

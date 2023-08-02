@@ -22,7 +22,7 @@ import { TaskTypeFormCreate } from '../components/taskType/TaskTypeForm'
 import { useData } from '../hooks/useData'
 
 const ProjectSettingsPage = () => {
-    const params = useParams<{ id: string }>()
+  const params = useParams<{ id: string }>()
   const navigate = useNavigate()
   const [showCreateTaskType, setShowCreateTaskType] = useState(false)
   const [members] = useData<ProjectMemberDto[], string>(
@@ -51,22 +51,26 @@ const ProjectSettingsPage = () => {
       justifyContent="center"
       spacing={4}
     >
-      <Loading {...project}>
-        {(data) => (
-          <>
-            <Grid
-              item
-              xs={11}
-            >
-              <ProjectFormUpdate
-                onUpdated={handleProjectUpdated}
-                project={data}
-              />
-            </Grid>
-            <Grid
-              item
-              xs={11}
-            >
+      <Grid
+        item
+        xs={11}
+      >
+        <Loading {...project}>
+          {(data) => (
+            <ProjectFormUpdate
+              onUpdated={handleProjectUpdated}
+              project={data}
+            />
+          )}
+        </Loading>
+      </Grid>
+      <Grid
+        item
+        xs={11}
+      >
+        <Loading {...project}>
+          {(data) => (
+            <>
               <Typography variant="h6">Task Types</Typography>
               <Typography variant="body1">Below you can add new task types or invite new members</Typography>
               <List>
@@ -96,36 +100,38 @@ const ProjectSettingsPage = () => {
                   onCancel={() => setShowCreateTaskType(false)}
                 />
               </Collapse>
-            </Grid>
-          </>
-        )}
-      </Loading>
+            </>
+          )}
+        </Loading>
+      </Grid>
 
-      <Loading {...members}>
-        {(data) => (
-          <Grid
-            item
-            xs={11}
-          >
-            <Typography variant="h6">Administrators</Typography>
-            <MemberList
-              members={data}
-              show="admins"
-            />
+      <Grid
+        item
+        xs={11}
+      >
+        <Loading {...members}>
+          {(data) => (
+            <>
+              <Typography variant="h6">Administrators</Typography>
+              <MemberList
+                members={data}
+                show="admins"
+              />
 
-            <Typography variant="h6">Members</Typography>
-            <MemberList
-              members={data}
-              show="members"
-            />
+              <Typography variant="h6">Members</Typography>
+              <MemberList
+                members={data}
+                show="members"
+              />
 
-            {params.id && <SendMemberInvite projectId={params.id} />}
+              {params.id && <SendMemberInvite projectId={params.id} />}
 
-            <Typography variant="h6">Invites</Typography>
-            <Alert severity="info">New feature coming soon - undo and view inprogress member invites</Alert>
-          </Grid>
-        )}
-      </Loading>
+              <Typography variant="h6">Invites</Typography>
+              <Alert severity="info">New feature coming soon - undo and view inprogress member invites</Alert>
+            </>
+          )}
+        </Loading>
+      </Grid>
     </Grid>
   )
 }

@@ -31,6 +31,8 @@ import SettingsPage from './pages/SettingsPage'
 import TaskTypeSettingsPage from './pages/TaskTypeSettingsPage'
 import TermsPage from './pages/TermsPage'
 import ProtectedRoute from './components/shared/ProtectedRoute'
+import MyRegistrationsPage from './pages/MyRegistrationsPage'
+import TaskRecordPage from './pages/TaskRecordPage'
 
 function App() {
   const [user, refreshUser] = useData(() => Api.me())
@@ -113,6 +115,14 @@ function App() {
                 <Route
                   path="invite/:id"
                   element={<InvitationPage />}
+                />
+                <Route
+                  path="registrations/:id"
+                  element={<TaskRecordPage />}
+                />
+                <Route
+                  path="my-registrations"
+                  element={<MyRegistrationsPage />}
                 />
               </Route>
             </Routes>

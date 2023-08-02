@@ -743,10 +743,12 @@ export class ApiClient {
     /**
      * @param project (optional) 
      * @param type (optional) 
+     * @param offset (optional) 
      * @param count (optional) 
+     * @param userId (optional) 
      * @return Success
      */
-    getTasks(project: string | undefined, type: string | undefined, count: number | undefined, cancelToken?: CancelToken | undefined): Promise<TaskRecordDto[]> {
+    getTasks(project: string | undefined, type: string | undefined, offset: number | undefined, count: number | undefined, userId: string | undefined, cancelToken?: CancelToken | undefined): Promise<TaskRecordDto[]> {
         let url_ = this.baseUrl + "/api/tasks?";
         if (project === null)
             throw new Error("The parameter 'project' cannot be null.");
@@ -756,10 +758,18 @@ export class ApiClient {
             throw new Error("The parameter 'type' cannot be null.");
         else if (type !== undefined)
             url_ += "type=" + encodeURIComponent("" + type) + "&";
+        if (offset === null)
+            throw new Error("The parameter 'offset' cannot be null.");
+        else if (offset !== undefined)
+            url_ += "offset=" + encodeURIComponent("" + offset) + "&";
         if (count === null)
             throw new Error("The parameter 'count' cannot be null.");
         else if (count !== undefined)
             url_ += "count=" + encodeURIComponent("" + count) + "&";
+        if (userId === null)
+            throw new Error("The parameter 'userId' cannot be null.");
+        else if (userId !== undefined)
+            url_ += "userId=" + encodeURIComponent("" + userId) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_: AxiosRequestConfig = {
@@ -846,6 +856,60 @@ export class ApiClient {
     }
 
     protected processCreateTask(response: AxiosResponse): Promise<TaskRecordDto> {
+        const status = response.status;
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (let k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
+        if (status === 200) {
+            const _responseText = response.data;
+            let result200: any = null;
+            let resultData200  = _responseText;
+            result200 = TaskRecordDto.fromJS(resultData200);
+            return Promise.resolve<TaskRecordDto>(result200);
+
+        } else if (status !== 200 && status !== 204) {
+            const _responseText = response.data;
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        }
+        return Promise.resolve<TaskRecordDto>(null as any);
+    }
+
+    /**
+     * @return Success
+     */
+    getTask(id: string, cancelToken?: CancelToken | undefined): Promise<TaskRecordDto> {
+        let url_ = this.baseUrl + "/api/tasks/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: AxiosRequestConfig = {
+            method: "GET",
+            url: url_,
+            headers: {
+                "Accept": "application/json"
+            },
+            cancelToken
+        };
+
+        return this.instance.request(options_).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
+            return this.processGetTask(_response);
+        });
+    }
+
+    protected processGetTask(response: AxiosResponse): Promise<TaskRecordDto> {
         const status = response.status;
         let _headers: any = {};
         if (response.headers && typeof response.headers === "object") {
@@ -1036,9 +1100,11 @@ export class ApiClient {
 
     /**
      * @param count (optional) 
+     * @param offset (optional) 
+     * @param userId (optional) 
      * @return Success
      */
-    getTasksOfType(id: string, count: number | undefined, cancelToken?: CancelToken | undefined): Promise<TaskRecordDto[]> {
+    getTasksOfType(id: string, count: number | undefined, offset: number | undefined, userId: string | undefined, cancelToken?: CancelToken | undefined): Promise<TaskRecordDto[]> {
         let url_ = this.baseUrl + "/api/task-types/{id}/tasks?";
         if (id === undefined || id === null)
             throw new Error("The parameter 'id' must be defined.");
@@ -1047,6 +1113,14 @@ export class ApiClient {
             throw new Error("The parameter 'count' cannot be null.");
         else if (count !== undefined)
             url_ += "count=" + encodeURIComponent("" + count) + "&";
+        if (offset === null)
+            throw new Error("The parameter 'offset' cannot be null.");
+        else if (offset !== undefined)
+            url_ += "offset=" + encodeURIComponent("" + offset) + "&";
+        if (userId === null)
+            throw new Error("The parameter 'userId' cannot be null.");
+        else if (userId !== undefined)
+            url_ += "userId=" + encodeURIComponent("" + userId) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_: AxiosRequestConfig = {

@@ -34,9 +34,11 @@ public class TaskTypeController : ControllerBase
     public async Task<IEnumerable<TaskRecordDto>> GetTasksOfType(
         [FromRoute] string id,
         [FromQuery] int? count,
+        [FromQuery] int? offset,
+        [FromQuery] string? userId,
         CancellationToken token)
     {
-            return await _taskRecordService.GetByProjectAndType(null, id, count, token);
+            return await _taskRecordService.GetByProjectAndType(null, id, userId, offset, count, token);
     }
 
     [HttpGet("{id}")]

@@ -5,6 +5,8 @@ using Mapster;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using DiaperTracker.Persistence;
+using Duende.IdentityServer.Services;
+using Duende.IdentityServer.Stores;
 
 namespace DiaperTracker.Api;
 
@@ -23,7 +25,10 @@ public class AccountController : ControllerBase
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IServiceProvider _serviceProvider;
 
-    public AccountController(SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager, IServiceProvider serviceProvider)
+    public AccountController(
+        SignInManager<ApplicationUser> signInManager, 
+        UserManager<ApplicationUser> userManager, 
+        IServiceProvider serviceProvider)
     {
         _signInManager = signInManager;
         _userManager = userManager;
@@ -94,6 +99,7 @@ public class AccountController : ControllerBase
         }
 
         var result = await _signInManager.ExternalLoginSignInAsync(provider, payload.Id, false);
+
         if (result.Succeeded)
         {
             payload.Adapt(user);
