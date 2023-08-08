@@ -1,9 +1,11 @@
-﻿using DiaperTracker.Contracts.Task;
+﻿using DiaperTracker.Contracts;
+using DiaperTracker.Contracts.Task;
 using DiaperTracker.Domain;
 using DiaperTracker.Domain.Exceptions;
 using DiaperTracker.Domain.Repositories;
 using DiaperTracker.Services.Abstractions;
 using Mapster;
+using System;
 
 namespace DiaperTracker.Services;
 
@@ -65,10 +67,33 @@ internal class TaskRecordService : ITaskRecordService
         return query.ToList().Adapt<IEnumerable<TaskRecordDto>>();
     }
 
-    public async Task<IEnumerable<TaskRecordDto>> GetByProjectAndType(string? projectId, string? typeId, string? userId, int? offset = null, int? count = null, CancellationToken token = default)
+
+    public async Task<PagedList<TaskRecordDto>> GetPageWithFilters(TaskFilters? filters = null, PageInfo? pageInfo = null, CancellationToken token = default)
     {
-        var results = await _taskRepository.FindByProjectAndType(projectId, typeId, userId, offset, count, token);
-        return results.Adapt<IEnumerable<TaskRecordDto>>();
+        var query = await _taskRepository.FindWithFilters(filters?.ProjectId, filters?.TypeId, filters?.UserId, token);
+        if (filters?.FromDate is not null)
+        {
+            query = query.Where(x => x.Date >= filters.FromDate);
+        }
+        if (filters?.ToDate is not null)
+        {
+            query = query.Where(x => x.Date <= filters.ToDate);
+        }
+
+        var count = pageInfo?.Count ?? 100;
+        var offset = pageInfo?.Offset ?? 0;
+        var total = query.Count();
+        query = query.Skip(offset).Take(count);
+
+        var results = query.ToList();
+
+        return new PagedList<TaskRecordDto>
+        {
+            Count = count,
+            Page = count == 0 ? 0 : offset / count,
+            Total = total,
+            Items = results.Adapt<IEnumerable<TaskRecordDto>>()
+        };
     }
 
     public async Task<TaskRecordDto> UpdateTask(string id, UpdateTaskDto task, CancellationToken token = default)

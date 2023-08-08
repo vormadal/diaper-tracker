@@ -123,7 +123,7 @@ function App() {
                   element={<TaskRecordPage />}
                 />
                 <Route
-                  path="my-registrations"
+                  path="registrations"
                   element={<MyRegistrationsPage />}
                 />
               </Route>

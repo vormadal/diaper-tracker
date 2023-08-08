@@ -1,4 +1,5 @@
-﻿using DiaperTracker.Contracts.Person;
+﻿using DiaperTracker.Contracts;
+using DiaperTracker.Contracts.Person;
 using DiaperTracker.Contracts.Task;
 using DiaperTracker.Contracts.TaskType;
 using DiaperTracker.Services.Abstractions;
@@ -31,14 +32,23 @@ public class TaskTypeController : ControllerBase
     }
 
     [HttpGet("{id}/tasks")]
-    public async Task<IEnumerable<TaskRecordDto>> GetTasksOfType(
+    public async Task<PagedList<TaskRecordDto>> GetTasksOfType(
         [FromRoute] string id,
-        [FromQuery] int? count,
-        [FromQuery] int? offset,
         [FromQuery] string? userId,
+        [FromQuery] int? offset,
+        [FromQuery] int? count,
         CancellationToken token)
     {
-            return await _taskRecordService.GetByProjectAndType(null, id, userId, offset, count, token);
+        return await _taskRecordService.GetPageWithFilters(new TaskFilters
+        {
+            TypeId = id,
+            UserId = userId,
+        },
+        new Contracts.PageInfo
+        {
+            Count = count,
+            Offset = offset,
+        }, token);
     }
 
     [HttpGet("{id}")]

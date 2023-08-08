@@ -1,4 +1,5 @@
-﻿using DiaperTracker.Contracts.Project;
+﻿using DiaperTracker.Contracts.Person;
+using DiaperTracker.Contracts.Project;
 using DiaperTracker.Contracts.ProjectMember;
 using DiaperTracker.Services.Abstractions;
 using Microsoft.AspNetCore.Authorization;
@@ -14,10 +15,12 @@ namespace DiaperTracker.Presentation.OpenApi.Controllers;
 public class ProjectController : ControllerBase
 {
     private readonly IProjectService _projectService;
+    private readonly ITaskTypeService _taskTypeService;
 
-    public ProjectController(IProjectService projectService)
+    public ProjectController(IProjectService projectService, ITaskTypeService taskTypeService)
     {
         _projectService = projectService;
+        _taskTypeService = taskTypeService;
     }
 
     /// <summary>
@@ -73,6 +76,12 @@ public class ProjectController : ControllerBase
     public async Task<ProjectDto> UpdateProject([FromRoute] string id, [FromBody] UpdateProjectDto update, CancellationToken token)
     {
         return await _projectService.Update(id, update, User.GetSubjectId(), token);
+    }
+
+    [HttpGet("{id}/task-types")]
+    public async Task<IEnumerable<TaskTypeDto>> GetProjectTaskTypes([FromRoute] string id, CancellationToken token)
+    {
+        return await _taskTypeService.FindByProject(id, User.GetSubjectId(), token);
     }
 
     [HttpGet("{id}/members")]

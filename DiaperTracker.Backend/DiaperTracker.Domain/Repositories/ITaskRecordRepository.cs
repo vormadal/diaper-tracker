@@ -4,7 +4,7 @@ public interface ITaskRecordRepository : IRepositoryBase<TaskRecord>
 {
     Task<TaskRecord> Create(TaskRecord task, CancellationToken token = default);
 
-    Task<IEnumerable<TaskRecord>> FindByProjectAndType(string? projectId, string? typeId, string? userId, int? offset, int? count, CancellationToken token = default);
+    Task<IQueryable<TaskRecord>> FindWithFilters(string? projectId, string? typeId, string? userId, CancellationToken token = default);
 
     Task Delete(TaskRecord task, CancellationToken token = default);
 }

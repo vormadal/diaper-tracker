@@ -1,4 +1,5 @@
-﻿using DiaperTracker.Contracts.Task;
+﻿using DiaperTracker.Contracts;
+using DiaperTracker.Contracts.Task;
 using DiaperTracker.Services.Abstractions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -20,15 +21,29 @@ public class TaskController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IEnumerable<TaskRecordDto>> GetTasks(
+    public async Task<PagedList<TaskRecordDto>> GetTasks(
         [FromQuery] string? project,
         [FromQuery] string? type,
+        [FromQuery] string? userId,
+        [FromQuery] DateTime? fromDate,
+        [FromQuery] DateTime? toDate,
         [FromQuery] int? offset,
         [FromQuery] int? count,
-        [FromQuery] string? userId,
         CancellationToken token)
     {
-        return await _taskService.GetByProjectAndType(project, type, userId, offset, count, token);
+        return await _taskService.GetPageWithFilters(
+            new TaskFilters
+            {
+                ProjectId = project,
+                FromDate = fromDate,
+                ToDate = toDate,
+                TypeId = type,
+                UserId = userId
+            }, new PageInfo
+            {
+                Offset = offset,
+                Count = count
+            }, token);
     }
 
     [HttpGet("{id}")]
@@ -49,7 +64,7 @@ public class TaskController : ControllerBase
     /// <link
     [HttpPost]
     public async Task<TaskRecordDto> CreateTask(
-        [FromBody] CreateTaskDto task, 
+        [FromBody] CreateTaskDto task,
         CancellationToken token)
     {
         return await _taskService.CreateTask(task, User.GetSubjectId(), token);

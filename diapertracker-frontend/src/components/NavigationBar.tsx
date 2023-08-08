@@ -32,8 +32,8 @@ const NavbarConfig = {
       path: '/'
     },
     {
-      name: 'My Registrations',
-      path: '/my-registrations'
+      name: 'Registrations',
+      path: '/registrations'
     },
     {
       name: 'Settings',

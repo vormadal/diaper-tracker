@@ -18,12 +18,10 @@ internal class TaskRecordRepository : RepositoryBase<TaskRecord>, ITaskRecordRep
             .FirstOrDefaultAsync(token);
     }
 
-    public async Task<IEnumerable<TaskRecord>> FindByProjectAndType(
+    public async Task<IQueryable<TaskRecord>> FindWithFilters(
         string? projectId, 
         string? typeId, 
         string? userId,
-        int? offset, 
-        int? count, 
         CancellationToken token = default)
     {
         var q = _set.AsQueryable();
@@ -48,12 +46,6 @@ internal class TaskRecordRepository : RepositoryBase<TaskRecord>, ITaskRecordRep
             .Include(x => x.CreatedBy)
             .OrderByDescending(x => x.Date);
 
-        if(count == null)
-        {
-            return await query.ToListAsync(token);
-            
-        }
-
-        return query.Skip(offset ?? 0).Take(count.Value);
+        return query;
     }
 }

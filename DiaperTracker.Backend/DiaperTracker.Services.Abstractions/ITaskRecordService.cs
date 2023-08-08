@@ -1,4 +1,5 @@
-﻿using DiaperTracker.Contracts.Task;
+﻿using DiaperTracker.Contracts;
+using DiaperTracker.Contracts.Task;
 
 namespace DiaperTracker.Services.Abstractions;
 
@@ -10,9 +11,7 @@ public interface ITaskRecordService
 
     Task DeleteTask(string id, CancellationToken token = default);
 
-    Task<IEnumerable<TaskRecordDto>> GetByProjectAndType(string? project, string? typeId, string? userId, int? offset = null, int? count = null, CancellationToken token = default);
-    
-    Task<IEnumerable<TaskRecordDto>> GetAll(int? count, CancellationToken token = default);
+    Task<PagedList<TaskRecordDto>> GetPageWithFilters(TaskFilters? filters = null, PageInfo? pageInfo = null, CancellationToken token = default);
     
     Task<TaskRecordDto> FindTask(string id, CancellationToken token = default);
 }

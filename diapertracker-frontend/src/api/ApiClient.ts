@@ -623,6 +623,67 @@ export class ApiClient {
     /**
      * @return Success
      */
+    getProjectTaskTypes(id: string, cancelToken?: CancelToken | undefined): Promise<TaskTypeDto[]> {
+        let url_ = this.baseUrl + "/api/projects/{id}/task-types";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: AxiosRequestConfig = {
+            method: "GET",
+            url: url_,
+            headers: {
+                "Accept": "application/json"
+            },
+            cancelToken
+        };
+
+        return this.instance.request(options_).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
+            return this.processGetProjectTaskTypes(_response);
+        });
+    }
+
+    protected processGetProjectTaskTypes(response: AxiosResponse): Promise<TaskTypeDto[]> {
+        const status = response.status;
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (let k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
+        if (status === 200) {
+            const _responseText = response.data;
+            let result200: any = null;
+            let resultData200  = _responseText;
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(TaskTypeDto.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return Promise.resolve<TaskTypeDto[]>(result200);
+
+        } else if (status !== 200 && status !== 204) {
+            const _responseText = response.data;
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        }
+        return Promise.resolve<TaskTypeDto[]>(null as any);
+    }
+
+    /**
+     * @return Success
+     */
     getMembers(id: string, cancelToken?: CancelToken | undefined): Promise<ProjectMemberDto[]> {
         let url_ = this.baseUrl + "/api/projects/{id}/members";
         if (id === undefined || id === null)
@@ -743,12 +804,14 @@ export class ApiClient {
     /**
      * @param project (optional) 
      * @param type (optional) 
+     * @param userId (optional) 
+     * @param fromDate (optional) 
+     * @param toDate (optional) 
      * @param offset (optional) 
      * @param count (optional) 
-     * @param userId (optional) 
      * @return Success
      */
-    getTasks(project: string | undefined, type: string | undefined, offset: number | undefined, count: number | undefined, userId: string | undefined, cancelToken?: CancelToken | undefined): Promise<TaskRecordDto[]> {
+    getTasks(project: string | undefined, type: string | undefined, userId: string | undefined, fromDate: Date | undefined, toDate: Date | undefined, offset: number | undefined, count: number | undefined, cancelToken?: CancelToken | undefined): Promise<TaskRecordDtoPagedList> {
         let url_ = this.baseUrl + "/api/tasks?";
         if (project === null)
             throw new Error("The parameter 'project' cannot be null.");
@@ -758,6 +821,18 @@ export class ApiClient {
             throw new Error("The parameter 'type' cannot be null.");
         else if (type !== undefined)
             url_ += "type=" + encodeURIComponent("" + type) + "&";
+        if (userId === null)
+            throw new Error("The parameter 'userId' cannot be null.");
+        else if (userId !== undefined)
+            url_ += "userId=" + encodeURIComponent("" + userId) + "&";
+        if (fromDate === null)
+            throw new Error("The parameter 'fromDate' cannot be null.");
+        else if (fromDate !== undefined)
+            url_ += "fromDate=" + encodeURIComponent(fromDate ? "" + fromDate.toISOString() : "") + "&";
+        if (toDate === null)
+            throw new Error("The parameter 'toDate' cannot be null.");
+        else if (toDate !== undefined)
+            url_ += "toDate=" + encodeURIComponent(toDate ? "" + toDate.toISOString() : "") + "&";
         if (offset === null)
             throw new Error("The parameter 'offset' cannot be null.");
         else if (offset !== undefined)
@@ -766,10 +841,6 @@ export class ApiClient {
             throw new Error("The parameter 'count' cannot be null.");
         else if (count !== undefined)
             url_ += "count=" + encodeURIComponent("" + count) + "&";
-        if (userId === null)
-            throw new Error("The parameter 'userId' cannot be null.");
-        else if (userId !== undefined)
-            url_ += "userId=" + encodeURIComponent("" + userId) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_: AxiosRequestConfig = {
@@ -792,7 +863,7 @@ export class ApiClient {
         });
     }
 
-    protected processGetTasks(response: AxiosResponse): Promise<TaskRecordDto[]> {
+    protected processGetTasks(response: AxiosResponse): Promise<TaskRecordDtoPagedList> {
         const status = response.status;
         let _headers: any = {};
         if (response.headers && typeof response.headers === "object") {
@@ -806,21 +877,14 @@ export class ApiClient {
             const _responseText = response.data;
             let result200: any = null;
             let resultData200  = _responseText;
-            if (Array.isArray(resultData200)) {
-                result200 = [] as any;
-                for (let item of resultData200)
-                    result200!.push(TaskRecordDto.fromJS(item));
-            }
-            else {
-                result200 = <any>null;
-            }
-            return Promise.resolve<TaskRecordDto[]>(result200);
+            result200 = TaskRecordDtoPagedList.fromJS(resultData200);
+            return Promise.resolve<TaskRecordDtoPagedList>(result200);
 
         } else if (status !== 200 && status !== 204) {
             const _responseText = response.data;
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
         }
-        return Promise.resolve<TaskRecordDto[]>(null as any);
+        return Promise.resolve<TaskRecordDtoPagedList>(null as any);
     }
 
     /**
@@ -1099,28 +1163,28 @@ export class ApiClient {
     }
 
     /**
-     * @param count (optional) 
-     * @param offset (optional) 
      * @param userId (optional) 
+     * @param offset (optional) 
+     * @param count (optional) 
      * @return Success
      */
-    getTasksOfType(id: string, count: number | undefined, offset: number | undefined, userId: string | undefined, cancelToken?: CancelToken | undefined): Promise<TaskRecordDto[]> {
+    getTasksOfType(id: string, userId: string | undefined, offset: number | undefined, count: number | undefined, cancelToken?: CancelToken | undefined): Promise<TaskRecordDtoPagedList> {
         let url_ = this.baseUrl + "/api/task-types/{id}/tasks?";
         if (id === undefined || id === null)
             throw new Error("The parameter 'id' must be defined.");
         url_ = url_.replace("{id}", encodeURIComponent("" + id));
-        if (count === null)
-            throw new Error("The parameter 'count' cannot be null.");
-        else if (count !== undefined)
-            url_ += "count=" + encodeURIComponent("" + count) + "&";
-        if (offset === null)
-            throw new Error("The parameter 'offset' cannot be null.");
-        else if (offset !== undefined)
-            url_ += "offset=" + encodeURIComponent("" + offset) + "&";
         if (userId === null)
             throw new Error("The parameter 'userId' cannot be null.");
         else if (userId !== undefined)
             url_ += "userId=" + encodeURIComponent("" + userId) + "&";
+        if (offset === null)
+            throw new Error("The parameter 'offset' cannot be null.");
+        else if (offset !== undefined)
+            url_ += "offset=" + encodeURIComponent("" + offset) + "&";
+        if (count === null)
+            throw new Error("The parameter 'count' cannot be null.");
+        else if (count !== undefined)
+            url_ += "count=" + encodeURIComponent("" + count) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_: AxiosRequestConfig = {
@@ -1143,7 +1207,7 @@ export class ApiClient {
         });
     }
 
-    protected processGetTasksOfType(response: AxiosResponse): Promise<TaskRecordDto[]> {
+    protected processGetTasksOfType(response: AxiosResponse): Promise<TaskRecordDtoPagedList> {
         const status = response.status;
         let _headers: any = {};
         if (response.headers && typeof response.headers === "object") {
@@ -1157,21 +1221,14 @@ export class ApiClient {
             const _responseText = response.data;
             let result200: any = null;
             let resultData200  = _responseText;
-            if (Array.isArray(resultData200)) {
-                result200 = [] as any;
-                for (let item of resultData200)
-                    result200!.push(TaskRecordDto.fromJS(item));
-            }
-            else {
-                result200 = <any>null;
-            }
-            return Promise.resolve<TaskRecordDto[]>(result200);
+            result200 = TaskRecordDtoPagedList.fromJS(resultData200);
+            return Promise.resolve<TaskRecordDtoPagedList>(result200);
 
         } else if (status !== 200 && status !== 204) {
             const _responseText = response.data;
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
         }
-        return Promise.resolve<TaskRecordDto[]>(null as any);
+        return Promise.resolve<TaskRecordDtoPagedList>(null as any);
     }
 
     /**
@@ -1759,6 +1816,65 @@ export interface ITaskRecordDto {
     type: TaskTypeDto;
     createdBy: UserDto;
     date: Date;
+}
+
+export class TaskRecordDtoPagedList implements ITaskRecordDtoPagedList {
+    items!: TaskRecordDto[];
+    page!: number;
+    count!: number;
+    total!: number;
+
+    constructor(data?: ITaskRecordDtoPagedList) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+        if (!data) {
+            this.items = [];
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(TaskRecordDto.fromJS(item));
+            }
+            this.page = _data["page"];
+            this.count = _data["count"];
+            this.total = _data["total"];
+        }
+    }
+
+    static fromJS(data: any): TaskRecordDtoPagedList {
+        data = typeof data === 'object' ? data : {};
+        let result = new TaskRecordDtoPagedList();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        data["page"] = this.page;
+        data["count"] = this.count;
+        data["total"] = this.total;
+        return data;
+    }
+}
+
+export interface ITaskRecordDtoPagedList {
+    items: TaskRecordDto[];
+    page: number;
+    count: number;
+    total: number;
 }
 
 export class TaskTypeDto implements ITaskTypeDto {

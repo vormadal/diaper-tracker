@@ -22,8 +22,8 @@ public class TaskTypeService : ITaskTypeService
 
     public async Task<TaskTypeDto> Create(CreateTaskType taskType, string userId, CancellationToken token)
     {
-        var project =await _projectRepository.FindById(taskType.ProjectId, false, token);
-        if(project == null || !project.Members.Any(x => x.UserId == userId && x.IsAdmin))
+        var project = await _projectRepository.FindById(taskType.ProjectId, false, token);
+        if (project == null || !project.Members.Any(x => x.UserId == userId && x.IsAdmin))
         {
             //TODO make better
             throw new Exception("not allowed to create task types here");
@@ -41,7 +41,7 @@ public class TaskTypeService : ITaskTypeService
         var taskType = await _taskTypeRepository.FindById(id, token);
         var project = await _projectRepository.FindById(taskType.ProjectId, false, token);
 
-        if(!project.Members.Any(x => x.UserId == userId && x.IsAdmin))
+        if (!project.Members.Any(x => x.UserId == userId && x.IsAdmin))
         {
             throw new Exception("You are not allowed");
         }
@@ -62,6 +62,18 @@ public class TaskTypeService : ITaskTypeService
         }
 
         return existing.Adapt<TaskTypeDto>();
+    }
+
+    public async Task<IEnumerable<TaskTypeDto>> FindByProject(string projectId, string userId, CancellationToken token = default)
+    {
+        var results = await _taskTypeRepository.FindByProject(projectId, token: token);
+        var project = await _projectRepository.FindById(projectId, false, token);
+
+        if (!project.Members.Any(x => x.UserId == userId && x.IsAdmin))
+        {
+            throw new Exception("You are not allowed");
+        }
+        return results.Adapt<IEnumerable<TaskTypeDto>>();
     }
 
     public async Task<TaskTypeDto> Update(string id, UpdateTaskTypeDto taskType, string userId, CancellationToken token = default)

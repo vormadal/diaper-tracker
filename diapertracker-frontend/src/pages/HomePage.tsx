@@ -8,6 +8,7 @@ import { useData } from '../hooks/useData'
 import { useProject } from '../hooks/useProject'
 import { useToast } from '../hooks/useToast'
 import { TaskTypeFormCreate } from '../components/taskType/TaskTypeForm'
+import SelectProject from '../components/project/SelectProject'
 
 const HomePage = () => {
   const toast = useToast()
@@ -50,25 +51,11 @@ const HomePage = () => {
               {!!data.length && (
                 <>
                   {data.length > 1 ? (
-                    <FormControl fullWidth>
-                      <InputLabel id="project-select-label"></InputLabel>
-                      <Select
-                        labelId="project-select-label"
-                        id="project-select"
-                        value={project?.id || ''}
-                        onChange={(e) => setProject(e.target.value)}
-                      >
-                        {data.map((x) => (
-                          <MenuItem
-                            key={x.id}
-                            selected={x.id === project?.id}
-                            value={x.id}
-                          >
-                            {x.name}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
+                    <SelectProject
+                      options={data}
+                      onChange={(x) => setProject(x?.id || '')}
+                      selectedId={project?.id || ''}
+                    />
                   ) : (
                     <Typography variant="h5">{project?.name}</Typography>
                   )}

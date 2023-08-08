@@ -1,37 +1,37 @@
-import { Delete, ExpandMore as ExpandMoreIcon, PlusOne, Undo } from '@mui/icons-material'
+import { ExpandMore as ExpandMoreIcon, PlusOne, Undo } from '@mui/icons-material'
 import {
+  Badge,
   Card,
   CardActionArea,
   CardActions,
   CardContent,
+  Chip,
   Collapse,
   IconButton,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
   Typography
 } from '@mui/material'
-import { differenceInMinutes } from 'date-fns'
+import { differenceInMinutes, endOfToday, startOfToday } from 'date-fns'
 import { useContext, useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Api } from '../api'
 import { CreateTaskDto, TaskRecordDto, TaskTypeDto } from '../api/ApiClient'
+import UserContext from '../contexts/UserContext'
 import { useData } from '../hooks/useData'
+import { useToast } from '../hooks/useToast'
 import { ExpandMore } from './shared/ExpandMore'
 import Loading from './shared/Loading'
-import TaskIcon from './taskType/TaskIcon'
-import { useToast } from '../hooks/useToast'
-import UserContext from '../contexts/UserContext'
-import SmartDate from './shared/SmartDate'
 import TaskList from './task/TaskList'
-import { useNavigate } from 'react-router-dom'
+import TaskIcon from './taskType/TaskIcon'
 
 type Props = { taskType: TaskTypeDto }
 
 const BigActionCard = ({ taskType }: Props) => {
   const [expanded, setExpanded] = useState(false)
   const [disabled, setDisabled] = useState(false)
-  const [tasks, updateTasks] = useData(() => Api.getTasksOfType(taskType.id, 5, 0, undefined))
+  const [tasks, updateTasks] = useData(() => Api.getTasksOfType(taskType.id, undefined, 0, 5))
+  const [tasksToday, updateTasksToday] = useData(() =>
+    Api.getTasks(taskType.projectId, taskType.id, undefined, startOfToday(), endOfToday(), 0, 0)
+  )
   const toast = useToast()
   const [user] = useContext(UserContext)
   const [canUndo, setCanUndo] = useState(false)
@@ -39,7 +39,7 @@ const BigActionCard = ({ taskType }: Props) => {
 
   useEffect(() => {
     const filtered =
-      tasks.data?.filter((x) => differenceInMinutes(new Date(), x.date) < 1 && x.createdBy.id === user.id) || []
+      tasks.data?.items.filter((x) => differenceInMinutes(new Date(), x.date) < 1 && x.createdBy.id === user.id) || []
     setCanUndo(!!filtered.length)
   }, [tasks.data, user])
 
@@ -57,6 +57,7 @@ const BigActionCard = ({ taskType }: Props) => {
         })
       )
       updateTasks()
+      updateTasksToday()
       toast.success(`${taskType.displayName} er registreret`)
     } finally {
       setTimeout(() => setDisabled(false), 3000)
@@ -64,13 +65,14 @@ const BigActionCard = ({ taskType }: Props) => {
   }
 
   const deleteLast = async () => {
-    if (!tasks.data?.length) {
+    if (!tasks.data?.items.length) {
       return
     }
     setDisabled(true)
     try {
-      await Api.deleteTask(tasks.data[0].id)
+      await Api.deleteTask(tasks.data.items[0].id)
       updateTasks()
+      updateTasksToday()
       toast.success('Seneste registrering er slettet')
     } finally {
       setTimeout(() => setDisabled(false), 3000)
@@ -82,6 +84,7 @@ const BigActionCard = ({ taskType }: Props) => {
     try {
       await Api.deleteTask(task.id)
       updateTasks()
+      updateTasksToday()
       toast.success('Registrering er slettet')
     } finally {
       setDisabled(false)
@@ -103,13 +106,18 @@ const BigActionCard = ({ taskType }: Props) => {
             <TaskIcon name={taskType.icon} />
             <PlusOne fontSize="inherit" />
           </Typography>
+
           <Typography
             gutterBottom
             variant="h5"
             textAlign={'center'}
             component="div"
           >
-            {taskType.displayName}
+            {taskType.displayName}{' '}
+            <Chip
+              label={`Today: ${tasksToday.data?.total || '-'}`}
+              color="primary"
+            ></Chip>
           </Typography>
         </CardContent>
       </CardActionArea>
@@ -140,7 +148,7 @@ const BigActionCard = ({ taskType }: Props) => {
           <Loading {...tasks}>
             {(data) => (
               <TaskList
-                tasks={data}
+                tasks={data.items}
                 onDelete={deleteRecord}
                 onClick={(task) => navigate(`/registrations/${task.id}`)}
               />
