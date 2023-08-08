@@ -4,6 +4,7 @@ import { Api } from '../../api'
 import { TaskRecordDto, UpdateTaskDto } from '../../api/ApiClient'
 import { useToast } from '../../hooks/useToast'
 import { inputFormatDate } from '../../utils/DateUtils'
+import { DateTimePicker } from '@mui/x-date-pickers'
 
 interface TaskRecordValues {
   date: Date
@@ -31,19 +32,17 @@ const TaskRecordForm = ({ submitButtonLabel, initialValues, onSubmit, onCancel }
     }
   }
 
-  const handleDateChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.valueAsNumber
-    setDate(value ? new Date(value) : null)
+  const handleDateChange = (value: Date | null) => {
+    setDate(value)
   }
   return (
     <form onSubmit={handleSubmit}>
-      <TextField
-        name="date"
+      <DateTimePicker
         label="Date"
-        type="datetime-local"
-        value={inputFormatDate(date)}
+        value={date}
+        ampm={false}
         onChange={handleDateChange}
-        required
+        disableFuture
       />
       <Button
         disabled={disabled}

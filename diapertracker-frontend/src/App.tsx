@@ -33,6 +33,8 @@ import TermsPage from './pages/TermsPage'
 import ProtectedRoute from './components/shared/ProtectedRoute'
 import MyRegistrationsPage from './pages/MyRegistrationsPage'
 import TaskRecordPage from './pages/TaskRecordPage'
+import { LocalizationProvider } from '@mui/x-date-pickers'
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 
 function App() {
   const [user, refreshUser] = useData(() => Api.me())
@@ -138,7 +140,9 @@ function AppWithProviders() {
     <Router>
       <Toast>
         <ThemeProvider theme={theme}>
-          <App />
+          <LocalizationProvider dateAdapter={AdapterDateFns}>
+            <App />
+          </LocalizationProvider>
         </ThemeProvider>
       </Toast>
     </Router>

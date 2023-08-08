@@ -13,8 +13,7 @@ export const smartFormatDate = (date: Date): string => {
 
 export const inputFormatDate = (date?: Date | null): string => {
   if (!date) return ''
-  const str = format(date, "yyyy-MM-dd'T'HH:mm")
+  const str = format(date, "yyyy-MM-dd'T'hh:mm")
 
-  console.log('date format', str)
   return str
 }
