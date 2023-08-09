@@ -2,7 +2,6 @@ import { useCallback } from 'react'
 import { Api } from '../../api'
 import { ExternalLoginRequest } from '../../api/ApiClient'
 import { useRequest } from '../../hooks/useRequest'
-import ErrorMessage from '../shared/ErrorMessage'
 import GoogleLogin from './GoogleLogin'
 import { LoginPayload } from './LoginPayload'
 import { LoginStatus } from './LoginStatus'
@@ -11,7 +10,7 @@ type Props = {
 }
 
 const Login = ({ onChange }: Props) => {
-  const [request, send] = useRequest()
+  const [, send] = useRequest()
 
   const handleCallback = useCallback(
     (provider: string) => async (status: LoginStatus, payload: LoginPayload) => {
@@ -32,7 +31,6 @@ const Login = ({ onChange }: Props) => {
   )
   return (
     <>
-      <ErrorMessage error={request.error} />
       <GoogleLogin onResponse={handleCallback('google')} />
       {/* facebook login requires business verification before it can go live :( */}
       {/* <FacebookLogin onResponse={handleCallback('facebook')} /> */}

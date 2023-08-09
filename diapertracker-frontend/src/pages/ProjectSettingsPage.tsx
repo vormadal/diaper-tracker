@@ -12,7 +12,7 @@ import {
 import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Api } from '../api'
-import { CreateTaskType, ProjectDto, ProjectMemberDto } from '../api/ApiClient'
+import { CreateTaskType, ProjectDto } from '../api/ApiClient'
 import MemberList from '../components/members/MemberList'
 import SendMemberInvite from '../components/members/SendMemberInvite'
 import { ProjectFormUpdate } from '../components/project/ProjectForm'
@@ -22,14 +22,13 @@ import { TaskTypeFormCreate } from '../components/taskType/TaskTypeForm'
 import { useData } from '../hooks/useData'
 import { useRequest } from '../hooks/useRequest'
 import { useToast } from '../hooks/useToast'
-import ErrorMessage from '../components/shared/ErrorMessage'
 
 const getProject = async (id?: string) => (id ? Api.getProject(id) : undefined)
 const getMembers = async (id?: string) => (id ? Api.getMembers(id) : [])
 const ProjectSettingsPage = () => {
   const params = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const [request, send] = useRequest()
+  const [, send] = useRequest()
   const toast = useToast()
   const [showCreateTaskType, setShowCreateTaskType] = useState(false)
   const [members] = useData(getMembers, params.id)
@@ -147,7 +146,6 @@ const ProjectSettingsPage = () => {
         item
         xs={11}
       >
-        <ErrorMessage error={request.error} />
         <Typography variant="h5">Danger Zone</Typography>
         <Alert severity="error">This operation can not be undone</Alert>
         <p></p>

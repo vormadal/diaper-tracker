@@ -45,7 +45,8 @@ public class ExceptionMapperOptions
 
         if(_includeStackTrace)
         {
-            problemDetails.Extensions.Add("StackTrace", exception.StackTrace);
+            problemDetails.Extensions.Add("stackTrace", exception.StackTrace);
+            problemDetails.Extensions.Add("data", exception.Data);
         }
 
         return problemDetails;

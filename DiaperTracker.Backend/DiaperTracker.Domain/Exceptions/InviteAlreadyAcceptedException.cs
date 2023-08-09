@@ -2,5 +2,8 @@
 
 public class InviteAlreadyAcceptedException : Exception
 {
-    public InviteAlreadyAcceptedException(string inviteId): base($"The invite {inviteId} has already been accepted") { }
+    public InviteAlreadyAcceptedException(string inviteId) : base($"The invite has already been accepted")
+    {
+        Data.Add(nameof(inviteId), inviteId);
+    }
 }

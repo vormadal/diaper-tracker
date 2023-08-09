@@ -1,7 +1,6 @@
 import { Alert, Button, Grid, Typography } from '@mui/material'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Api } from '../api'
-import ErrorMessage from '../components/shared/ErrorMessage'
 import Loading from '../components/shared/Loading'
 import { TaskTypeFormUpdate } from '../components/taskType/TaskTypeForm'
 import { useData } from '../hooks/useData'
@@ -18,7 +17,7 @@ const TaskTypeSettingsPage = () => {
   const params = useParams<ParamsType>()
   const [taskType] = useData(getTaskType, params.id)
   const toast = useToast()
-  const [request, send] = useRequest()
+  const [, send] = useRequest()
   const navigate = useNavigate()
 
   const deleteTaskType = async () => {
@@ -41,7 +40,6 @@ const TaskTypeSettingsPage = () => {
         item
         xs={11}
       >
-        <ErrorMessage error={request.error} />
         <Loading {...taskType}>{(data) => <TaskTypeFormUpdate taskType={data} />}</Loading>
       </Grid>
       <Grid

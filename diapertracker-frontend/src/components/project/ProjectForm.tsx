@@ -1,10 +1,9 @@
 import { Button, TextField, Typography } from '@mui/material'
 import { FormEvent, useState } from 'react'
-import { CreateProjectDto, ProjectDto, UpdateProjectDto } from '../../api/ApiClient'
 import { Api } from '../../api'
-import { useToast } from '../../hooks/useToast'
-import ErrorMessage from '../shared/ErrorMessage'
+import { CreateProjectDto, ProjectDto, UpdateProjectDto } from '../../api/ApiClient'
 import { useRequest } from '../../hooks/useRequest'
+import { useToast } from '../../hooks/useToast'
 
 interface ProjectValues {
   name: string
@@ -63,7 +62,7 @@ interface ProjectFormCreateProps {
 
 export const ProjectFormCreate = ({ onCreated }: ProjectFormCreateProps) => {
   const toast = useToast()
-  const [request, send] = useRequest()
+  const [, send] = useRequest()
   const handleSubmit = async (project: ProjectValues) => {
     const { success, data: created } = await send(() => Api.createProject(new CreateProjectDto(project)))
 
@@ -74,7 +73,6 @@ export const ProjectFormCreate = ({ onCreated }: ProjectFormCreateProps) => {
   }
   return (
     <>
-      <ErrorMessage error={request.error} />
       <Typography variant="body1">Enter a name below to create a new project</Typography>
       <ProjectForm onSubmit={handleSubmit} />
     </>
@@ -89,7 +87,7 @@ interface ProjectFormUpdateProps {
 
 export const ProjectFormUpdate = ({ project, onUpdated, onCancel }: ProjectFormUpdateProps) => {
   const toast = useToast()
-  const [request, send] = useRequest()
+  const [, send] = useRequest()
   const handleSubmit = async (values: ProjectValues) => {
     const { success, data: updated } = await send(() => Api.updateProject(project.id, new UpdateProjectDto(values)))
     if (success && updated) {
@@ -99,7 +97,6 @@ export const ProjectFormUpdate = ({ project, onUpdated, onCancel }: ProjectFormU
   }
   return (
     <>
-      <ErrorMessage error={request.error} />
       <ProjectForm
         onSubmit={handleSubmit}
         onCancel={onCancel}

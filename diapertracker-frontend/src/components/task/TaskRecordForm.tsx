@@ -5,7 +5,6 @@ import { Api } from '../../api'
 import { TaskRecordDto, UpdateTaskDto } from '../../api/ApiClient'
 import { useRequest } from '../../hooks/useRequest'
 import { useToast } from '../../hooks/useToast'
-import ErrorMessage from '../shared/ErrorMessage'
 
 interface TaskRecordValues {
   date: Date
@@ -73,7 +72,7 @@ interface TaskRecordFormUpdateProps {
 
 export const TaskRecordFormUpdate = ({ taskRecord, onUpdated, onCancel }: TaskRecordFormUpdateProps) => {
   const toast = useToast()
-  const [request, send] = useRequest()
+  const [, send] = useRequest()
   const handleSubmit = async (values: TaskRecordValues) => {
     const { success, data: updated } = await send(() =>
       Api.updateTask(
@@ -91,7 +90,6 @@ export const TaskRecordFormUpdate = ({ taskRecord, onUpdated, onCancel }: TaskRe
   }
   return (
     <>
-      <ErrorMessage error={request.error} />
       <TaskRecordForm
         onSubmit={handleSubmit}
         onCancel={onCancel}

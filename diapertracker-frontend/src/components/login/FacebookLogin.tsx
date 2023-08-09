@@ -23,19 +23,19 @@ const FacebookLogin = ({ onResponse }: Props) => {
     )
   }
 
-  const initialize = () => {
-    if (!window.FB) return
-    FB.getLoginStatus(function (response) {
-      if (response.status === 'connected') {
-        onResponse(response.authResponse.accessToken)
-      } else {
-        setLoaded(true)
-      }
-    })
-  }
   useEffect(() => {
+    const initialize = () => {
+      if (!window.FB) return
+      FB.getLoginStatus(function (response) {
+        if (response.status === 'connected') {
+          onResponse(response.authResponse.accessToken)
+        } else {
+          setLoaded(true)
+        }
+      })
+    }
     initialize()
-  }, [])
+  }, [onResponse])
 
   if (!isLoaded) {
     return null

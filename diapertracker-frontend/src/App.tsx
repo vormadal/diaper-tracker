@@ -73,55 +73,57 @@ function App() {
     <UserContext.Provider value={[user.data ?? new UserProfile(), refreshUser]}>
       <>
         <NavigationBar handleLogout={handleLogout} />
-        <Loading
-          {...user}
-          loading={loading || user.loading}
-          showReloads
-        >
-          {(data) => (
-            <Routes>
-              <Route
-                index
-                element={user.data?.isLoggedIn ? <HomePage /> : <LandingPage onLoginChange={handleLoginChange} />}
-              />
+        <Toast>
+          <Loading
+            {...user}
+            loading={loading || user.loading}
+            showReloads
+          >
+            {(data) => (
+              <Routes>
+                <Route
+                  index
+                  element={user.data?.isLoggedIn ? <HomePage /> : <LandingPage onLoginChange={handleLoginChange} />}
+                />
 
-              <Route element={<ProtectedRoute user={data} />}>
+                <Route element={<ProtectedRoute user={data} />}>
+                  <Route
+                    path="task-settings/:id"
+                    element={<TaskTypeSettingsPage />}
+                  />
+                  <Route
+                    path="settings/:id"
+                    element={<ProjectSettingsPage />}
+                  />
+                  <Route
+                    path="settings"
+                    element={<SettingsPage />}
+                  />
+                  <Route
+                    path="registrations/:id"
+                    element={<TaskRecordPage />}
+                  />
+                  <Route
+                    path="registrations"
+                    element={<MyRegistrationsPage />}
+                  />
+                </Route>
                 <Route
-                  path="task-settings/:id"
-                  element={<TaskTypeSettingsPage />}
+                  path="privacy"
+                  element={<PrivacyPage />}
                 />
                 <Route
-                  path="settings/:id"
-                  element={<ProjectSettingsPage />}
+                  path="terms"
+                  element={<TermsPage />}
                 />
                 <Route
-                  path="settings"
-                  element={<SettingsPage />}
+                  path="invite/:id"
+                  element={<InvitationPage />}
                 />
-                <Route
-                  path="registrations/:id"
-                  element={<TaskRecordPage />}
-                />
-                <Route
-                  path="registrations"
-                  element={<MyRegistrationsPage />}
-                />
-              </Route>
-              <Route
-                path="privacy"
-                element={<PrivacyPage />}
-              />
-              <Route
-                path="terms"
-                element={<TermsPage />}
-              />
-              <Route
-                path="invite/:id"
-                element={<InvitationPage />}
-              />
-            </Routes>
-          )}
-        </Loading>
+              </Routes>
+            )}
+          </Loading>
+        </Toast>
       </>
     </UserContext.Provider>
   )
@@ -130,13 +132,11 @@ function App() {
 function AppWithProviders() {
   return (
     <Router>
-      <Toast>
-        <ThemeProvider theme={theme}>
-          <LocalizationProvider dateAdapter={AdapterDateFns}>
-            <App />
-          </LocalizationProvider>
-        </ThemeProvider>
-      </Toast>
+      <ThemeProvider theme={theme}>
+        <LocalizationProvider dateAdapter={AdapterDateFns}>
+          <App />
+        </LocalizationProvider>
+      </ThemeProvider>
     </Router>
   )
 }

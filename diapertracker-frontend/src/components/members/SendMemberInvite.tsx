@@ -2,9 +2,8 @@ import { Button, Collapse, TextField } from '@mui/material'
 import { FormEvent, useState } from 'react'
 import { Api } from '../../api'
 import { CreateProjectMemberInviteDto } from '../../api/ApiClient'
-import { useToast } from '../../hooks/useToast'
 import { useRequest } from '../../hooks/useRequest'
-import ErrorMessage from '../shared/ErrorMessage'
+import { useToast } from '../../hooks/useToast'
 
 type Props = {
   projectId: string
@@ -14,7 +13,7 @@ const SendMemberInvite = ({ projectId }: Props) => {
   const [show, setShow] = useState(false)
   const [email, setEmail] = useState('')
   const toast = useToast()
-  const [request, send] = useRequest()
+  const [, send] = useRequest()
 
   const sendInvite = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -33,7 +32,6 @@ const SendMemberInvite = ({ projectId }: Props) => {
   }
   return (
     <>
-      <ErrorMessage error={request.error} />
       <form onSubmit={sendInvite}>
         <Collapse in={show}>
           <TextField

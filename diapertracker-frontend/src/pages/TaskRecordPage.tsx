@@ -1,7 +1,6 @@
 import { Button, Grid, Typography } from '@mui/material'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Api } from '../api'
-import ErrorMessage from '../components/shared/ErrorMessage'
 import Loading from '../components/shared/Loading'
 import { TaskRecordFormUpdate } from '../components/task/TaskRecordForm'
 import TaskIcon from '../components/taskType/TaskIcon'
@@ -40,7 +39,6 @@ function TaskRecordPage() {
         md={6}
       >
         <Typography variant="h5">Registration</Typography>
-        <ErrorMessage error={request.error} />
         <Loading {...task}>
           {(data) => (
             <>

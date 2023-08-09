@@ -1,15 +1,14 @@
 import { Button, Grid, Typography } from '@mui/material'
-import { useNavigate, useParams } from 'react-router-dom'
-import Login from '../components/login/Login'
-import { useData } from '../hooks/useData'
-import { Api } from '../api'
-import Loading from '../components/shared/Loading'
 import { useContext, useState } from 'react'
-import UserContext from '../contexts/UserContext'
-import { useToast } from '../hooks/useToast'
+import { useNavigate, useParams } from 'react-router-dom'
+import { Api } from '../api'
+import Login from '../components/login/Login'
+import Loading from '../components/shared/Loading'
 import Spinner from '../components/shared/Spinner'
+import UserContext from '../contexts/UserContext'
+import { useData } from '../hooks/useData'
 import { useRequest } from '../hooks/useRequest'
-import ErrorMessage from '../components/shared/ErrorMessage'
+import { useToast } from '../hooks/useToast'
 
 const getGivenInvite = async (id?: string) => (id ? Api.getInvite(id) : undefined)
 const InvitationPage = () => {
@@ -59,7 +58,6 @@ const InvitationPage = () => {
         item
         xs={11}
       >
-        <ErrorMessage error={request.error} />
         <Spinner show={request.loading} />
         {!request.loading && !showLogin && (
           <Loading {...invite}>

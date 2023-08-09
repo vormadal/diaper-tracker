@@ -117,7 +117,11 @@ public class ProjectService : IProjectService
     {
         if (response.Response == InviteResponse.Accepted && userId == null)
         {
-            throw new NotAllowedException("Cannot accept a membership invite without being logged in");
+            throw new NotAllowedException(
+                "Cannot accept a membership invite without being logged in",
+                ("userId", userId),
+                ("inviteId", response.Id)
+                );
         }
 
         var invite = await _projectMemberInviteRepository.FindById(response.Id, token);
@@ -194,7 +198,12 @@ public class ProjectService : IProjectService
 
         if (!project.Members.Any(x => x.UserId == userId && (!requireAdmin || x.IsAdmin)))
         {
-            throw new NotAllowedException("You don't have access to this");
+            throw new NotAllowedException(
+                requireAdmin ? "You are not admin of this project" : "You are not a member of this project",
+                ("requireAdmin", requireAdmin),
+                ("projectId", projectId),
+                ("userId", userId)
+                );
         }
 
         return project;

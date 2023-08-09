@@ -26,7 +26,12 @@ internal class TaskRecordService : ITaskRecordService
         var project = await _projectRepository.FindById(task.ProjectId, false, token);
         if (project == null || !project.TaskTypes.Any(x => x.Id == task.TypeId))
         {
-            throw new InvalidTaskRecordException($"The task type {task.TypeId} does not exist on project {task.ProjectId}");
+            throw new InvalidTaskRecordException(
+                $"The task type does not exist on the given project",
+                ("userId", userId),
+                ("typeId", task.TypeId),
+                ("projectId", task.ProjectId)
+                );
         }
 
         var record = task.Adapt<TaskRecord>();

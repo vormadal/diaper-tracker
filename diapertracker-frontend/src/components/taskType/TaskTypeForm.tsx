@@ -1,10 +1,9 @@
-import { FormEvent, useState } from 'react'
-import { CreateTaskType, TaskTypeDto, UpdateTaskTypeDto } from '../../api/ApiClient'
 import { Button, TextField } from '@mui/material'
+import { FormEvent, useState } from 'react'
 import { Api } from '../../api'
-import { useToast } from '../../hooks/useToast'
+import { CreateTaskType, TaskTypeDto, UpdateTaskTypeDto } from '../../api/ApiClient'
 import { useRequest } from '../../hooks/useRequest'
-import ErrorMessage from '../shared/ErrorMessage'
+import { useToast } from '../../hooks/useToast'
 
 interface TaskTypeValues {
   displayName: string
@@ -77,7 +76,7 @@ interface TaskTypeFormCreateProps {
 
 export const TaskTypeFormCreate = ({ projectId, onCreated, onCancel }: TaskTypeFormCreateProps) => {
   const toast = useToast()
-  const [request, send] = useRequest()
+  const [, send] = useRequest()
   const handleSubmit = async (values: TaskTypeValues) => {
     const { success, data: created } = await send(() =>
       Api.createTaskType(
@@ -96,7 +95,6 @@ export const TaskTypeFormCreate = ({ projectId, onCreated, onCancel }: TaskTypeF
   }
   return (
     <>
-      <ErrorMessage error={request.error} />
       <TaskTypeForm
         onSubmit={handleSubmit}
         onCancel={onCancel}
@@ -113,7 +111,7 @@ interface TaskTypeFormUpdateProps {
 
 export const TaskTypeFormUpdate = ({ taskType, onUpdated, onCancel }: TaskTypeFormUpdateProps) => {
   const toast = useToast()
-  const [request, send] = useRequest()
+  const [, send] = useRequest()
   const handleSubmit = async (values: TaskTypeValues) => {
     const { success, data: updated } = await send(() =>
       Api.updateTaskType(
@@ -132,7 +130,6 @@ export const TaskTypeFormUpdate = ({ taskType, onUpdated, onCancel }: TaskTypeFo
   }
   return (
     <>
-      <ErrorMessage error={request.error} />
       <TaskTypeForm
         onSubmit={handleSubmit}
         onCancel={onCancel}

@@ -4,12 +4,11 @@ import { differenceInMinutes, endOfToday, startOfToday } from 'date-fns'
 import { useContext, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Api } from '../api'
-import { CreateTaskDto, TaskRecordDto, TaskRecordDtoPagedList, TaskTypeDto } from '../api/ApiClient'
+import { CreateTaskDto, TaskRecordDtoPagedList, TaskTypeDto } from '../api/ApiClient'
 import UserContext from '../contexts/UserContext'
 import { useData } from '../hooks/useData'
 import { useRequest } from '../hooks/useRequest'
 import { useToast } from '../hooks/useToast'
-import ErrorMessage from './shared/ErrorMessage'
 import { ExpandMore } from './shared/ExpandMore'
 import Loading from './shared/Loading'
 import TaskList from './task/TaskList'
@@ -103,7 +102,6 @@ const BigActionCard = ({ taskType }: Props) => {
               color="primary"
             ></Chip>
           </Typography>
-          <ErrorMessage error={request.error} />
         </CardContent>
       </CardActionArea>
       <CardActions disableSpacing>
