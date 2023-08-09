@@ -1,10 +1,11 @@
-import { Button, TextField } from '@mui/material'
-import { ChangeEvent, ChangeEventHandler, FormEvent, useState } from 'react'
+import { Button } from '@mui/material'
+import { DateTimePicker } from '@mui/x-date-pickers'
+import { FormEvent, useState } from 'react'
 import { Api } from '../../api'
 import { TaskRecordDto, UpdateTaskDto } from '../../api/ApiClient'
+import { useRequest } from '../../hooks/useRequest'
 import { useToast } from '../../hooks/useToast'
-import { inputFormatDate } from '../../utils/DateUtils'
-import { DateTimePicker } from '@mui/x-date-pickers'
+import ErrorMessage from '../shared/ErrorMessage'
 
 interface TaskRecordValues {
   date: Date
@@ -72,22 +73,25 @@ interface TaskRecordFormUpdateProps {
 
 export const TaskRecordFormUpdate = ({ taskRecord, onUpdated, onCancel }: TaskRecordFormUpdateProps) => {
   const toast = useToast()
+  const [request, send] = useRequest()
   const handleSubmit = async (values: TaskRecordValues) => {
-    try {
-      const updated = await Api.updateTask(
+    const { success, data: updated } = await send(() =>
+      Api.updateTask(
         taskRecord.id,
         new UpdateTaskDto({
           date: values.date
         })
       )
+    )
+
+    if (success && updated) {
       toast.success(`The registration has been updated`)
       onUpdated && (await onUpdated(updated))
-    } catch (e: any) {
-      toast.error(e.message)
     }
   }
   return (
     <>
+      <ErrorMessage error={request.error} />
       <TaskRecordForm
         onSubmit={handleSubmit}
         onCancel={onCancel}

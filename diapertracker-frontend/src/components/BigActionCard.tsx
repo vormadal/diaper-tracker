@@ -1,23 +1,15 @@
 import { ExpandMore as ExpandMoreIcon, PlusOne, Undo } from '@mui/icons-material'
-import {
-  Badge,
-  Card,
-  CardActionArea,
-  CardActions,
-  CardContent,
-  Chip,
-  Collapse,
-  IconButton,
-  Typography
-} from '@mui/material'
+import { Card, CardActionArea, CardActions, CardContent, Chip, Collapse, IconButton, Typography } from '@mui/material'
 import { differenceInMinutes, endOfToday, startOfToday } from 'date-fns'
 import { useContext, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Api } from '../api'
-import { CreateTaskDto, TaskRecordDto, TaskTypeDto } from '../api/ApiClient'
+import { CreateTaskDto, TaskRecordDto, TaskRecordDtoPagedList, TaskTypeDto } from '../api/ApiClient'
 import UserContext from '../contexts/UserContext'
 import { useData } from '../hooks/useData'
+import { useRequest } from '../hooks/useRequest'
 import { useToast } from '../hooks/useToast'
+import ErrorMessage from './shared/ErrorMessage'
 import { ExpandMore } from './shared/ExpandMore'
 import Loading from './shared/Loading'
 import TaskList from './task/TaskList'
@@ -25,13 +17,17 @@ import TaskIcon from './taskType/TaskIcon'
 
 type Props = { taskType: TaskTypeDto }
 
+const getTasks = async (typeId?: string): Promise<TaskRecordDtoPagedList | undefined> =>
+  typeId ? Api.getTasksOfType(typeId, undefined, 0, 5) : undefined
+
+const getTasksToday = async (taskType?: TaskTypeDto): Promise<TaskRecordDtoPagedList | undefined> =>
+  taskType ? Api.getTasks(taskType.projectId, taskType.id, undefined, startOfToday(), endOfToday(), 0, 0) : undefined
+
 const BigActionCard = ({ taskType }: Props) => {
   const [expanded, setExpanded] = useState(false)
-  const [disabled, setDisabled] = useState(false)
-  const [tasks, updateTasks] = useData(() => Api.getTasksOfType(taskType.id, undefined, 0, 5))
-  const [tasksToday, updateTasksToday] = useData(() =>
-    Api.getTasks(taskType.projectId, taskType.id, undefined, startOfToday(), endOfToday(), 0, 0)
-  )
+  const [request, send] = useRequest()
+  const [tasks, updateTasks] = useData(getTasks, taskType.id)
+  const [tasksToday, updateTasksToday] = useData(getTasksToday, taskType)
   const toast = useToast()
   const [user] = useContext(UserContext)
   const [canUndo, setCanUndo] = useState(false)
@@ -48,54 +44,42 @@ const BigActionCard = ({ taskType }: Props) => {
   }
 
   const createTask = async () => {
-    setDisabled(true)
-    try {
-      await Api.createTask(
+    const { success } = await send(() =>
+      Api.createTask(
         new CreateTaskDto({
           typeId: taskType.id,
           projectId: taskType.projectId
         })
       )
-      updateTasks()
-      updateTasksToday()
-      toast.success(`${taskType.displayName} er registreret`)
-    } finally {
-      setTimeout(() => setDisabled(false), 3000)
-    }
+    )
+
+    if (!success) return
+
+    updateTasks()
+    updateTasksToday()
+    toast.success(`${taskType.displayName} er registreret`)
   }
 
   const deleteLast = async () => {
     if (!tasks.data?.items.length) {
       return
     }
-    setDisabled(true)
-    try {
-      await Api.deleteTask(tasks.data.items[0].id)
-      updateTasks()
-      updateTasksToday()
-      toast.success('Seneste registrering er slettet')
-    } finally {
-      setTimeout(() => setDisabled(false), 3000)
-    }
-  }
 
-  const deleteRecord = async (task: TaskRecordDto) => {
-    setDisabled(true)
-    try {
-      await Api.deleteTask(task.id)
-      updateTasks()
-      updateTasksToday()
-      toast.success('Registrering er slettet')
-    } finally {
-      setDisabled(false)
-    }
+    const id = tasks.data.items[0].id
+    const { success } = await send(() => Api.deleteTask(id))
+
+    if (!success) return
+
+    updateTasks()
+    updateTasksToday()
+    toast.success('Seneste registrering er slettet')
   }
 
   return (
     <Card sx={{ marginBottom: '1rem' }}>
       <CardActionArea
         onClick={createTask}
-        disabled={disabled}
+        disabled={request.loading}
       >
         <CardContent>
           <Typography
@@ -115,10 +99,11 @@ const BigActionCard = ({ taskType }: Props) => {
           >
             {taskType.displayName}{' '}
             <Chip
-              label={`Today: ${tasksToday.data?.total || '-'}`}
+              label={`Today: ${tasksToday.data?.total || '0'}`}
               color="primary"
             ></Chip>
           </Typography>
+          <ErrorMessage error={request.error} />
         </CardContent>
       </CardActionArea>
       <CardActions disableSpacing>
@@ -149,7 +134,6 @@ const BigActionCard = ({ taskType }: Props) => {
             {(data) => (
               <TaskList
                 tasks={data.items}
-                onDelete={deleteRecord}
                 onClick={(task) => navigate(`/registrations/${task.id}`)}
               />
             )}

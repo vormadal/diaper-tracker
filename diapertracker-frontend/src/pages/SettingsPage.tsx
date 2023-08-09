@@ -18,9 +18,10 @@ import { ProjectFormCreate } from '../components/project/ProjectForm'
 import Loading from '../components/shared/Loading'
 import { useData } from '../hooks/useData'
 
+const getMyProjects = () => Api.getMyProjects()
 const SettingsPage = () => {
   const navigate = useNavigate()
-  const [projects, updateProjects] = useData(() => Api.getMyProjects())
+  const [projects, updateProjects] = useData(getMyProjects)
   const [showCreateProject, setShowCreateProject] = useState(false)
 
   const handleCreatedProject = async (project: CreateProjectDto) => {

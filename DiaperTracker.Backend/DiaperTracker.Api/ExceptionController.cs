@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Hosting;
 
 namespace DiaperTracker.Presentation.OpenApi.Controllers;
 
@@ -8,7 +7,12 @@ namespace DiaperTracker.Presentation.OpenApi.Controllers;
 [ApiExplorerSettings(IgnoreApi = true)]
 public class ExceptionController : ControllerBase
 {
+    private readonly ExceptionMapperOptions _mapper;
 
+    public ExceptionController(ExceptionMapperOptions mapper)
+    {
+        _mapper = mapper;
+    }
     [Route("/error-development")]
     public IActionResult HandleErrorDevelopment([FromServices] IHostEnvironment hostEnvironment)
     {
@@ -19,9 +23,9 @@ public class ExceptionController : ControllerBase
 
         var exceptionHandlerFeature = HttpContext.Features.Get<IExceptionHandlerFeature>()!;
 
-        return Problem(
-            detail: exceptionHandlerFeature.Error.StackTrace,
-            title: exceptionHandlerFeature.Error.Message);
+        var problem = _mapper.ToProblemDetails(exceptionHandlerFeature.Error);
+        
+        return new JsonResult(problem);
     }
 
     [Route("/error")]

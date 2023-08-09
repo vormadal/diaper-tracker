@@ -3,6 +3,8 @@ import { CreateTaskType, TaskTypeDto, UpdateTaskTypeDto } from '../../api/ApiCli
 import { Button, TextField } from '@mui/material'
 import { Api } from '../../api'
 import { useToast } from '../../hooks/useToast'
+import { useRequest } from '../../hooks/useRequest'
+import ErrorMessage from '../shared/ErrorMessage'
 
 interface TaskTypeValues {
   displayName: string
@@ -75,23 +77,26 @@ interface TaskTypeFormCreateProps {
 
 export const TaskTypeFormCreate = ({ projectId, onCreated, onCancel }: TaskTypeFormCreateProps) => {
   const toast = useToast()
+  const [request, send] = useRequest()
   const handleSubmit = async (values: TaskTypeValues) => {
-    try {
-      const created = await Api.createTaskType(
+    const { success, data: created } = await send(() =>
+      Api.createTaskType(
         new CreateTaskType({
           displayName: values.displayName,
           icon: values.icon,
           projectId: projectId
         })
       )
+    )
+
+    if (success && created) {
       toast.success(`${created.displayName} has been created`)
       await onCreated(created)
-    } catch (e: any) {
-      toast.error(e.message)
     }
   }
   return (
     <>
+      <ErrorMessage error={request.error} />
       <TaskTypeForm
         onSubmit={handleSubmit}
         onCancel={onCancel}
@@ -108,23 +113,26 @@ interface TaskTypeFormUpdateProps {
 
 export const TaskTypeFormUpdate = ({ taskType, onUpdated, onCancel }: TaskTypeFormUpdateProps) => {
   const toast = useToast()
+  const [request, send] = useRequest()
   const handleSubmit = async (values: TaskTypeValues) => {
-    try {
-      const updated = await Api.updateTaskType(
+    const { success, data: updated } = await send(() =>
+      Api.updateTaskType(
         taskType.id,
         new UpdateTaskTypeDto({
           displayName: values.displayName,
           icon: values.icon
         })
       )
+    )
+
+    if (success && updated) {
       toast.success(`${updated.displayName} has been updated`)
       onUpdated && (await onUpdated(updated))
-    } catch (e: any) {
-      toast.error(e.message)
     }
   }
   return (
     <>
+      <ErrorMessage error={request.error} />
       <TaskTypeForm
         onSubmit={handleSubmit}
         onCancel={onCancel}

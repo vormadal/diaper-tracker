@@ -5,8 +5,6 @@ using Mapster;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using DiaperTracker.Persistence;
-using Duende.IdentityServer.Services;
-using Duende.IdentityServer.Stores;
 
 namespace DiaperTracker.Api;
 
@@ -26,8 +24,8 @@ public class AccountController : ControllerBase
     private readonly IServiceProvider _serviceProvider;
 
     public AccountController(
-        SignInManager<ApplicationUser> signInManager, 
-        UserManager<ApplicationUser> userManager, 
+        SignInManager<ApplicationUser> signInManager,
+        UserManager<ApplicationUser> userManager,
         IServiceProvider serviceProvider)
     {
         _signInManager = signInManager;
@@ -42,7 +40,7 @@ public class AccountController : ControllerBase
         if (isSignedIn)
         {
             var user = await _userManager.FindByIdAsync(User.Identity.GetSubjectId());
-            
+
             var profile = user.Adapt<UserProfile>();
             profile.IsLoggedIn = true;
             profile.Idp = User.Identity.GetIdentityProvider();
@@ -61,12 +59,7 @@ public class AccountController : ControllerBase
     {
         var loginServices = _serviceProvider.GetServices<LoginService>();
 
-        var loginService = loginServices.FirstOrDefault(x => x.Name == provider);
-
-        if(loginService == null)
-        {
-            throw new Exception($"No login service for {provider}");
-        }
+        var loginService = loginServices.FirstOrDefault(x => x.Name == provider) ?? throw new MissingLoginProviderException(provider);
 
         var payload = await loginService.ValidateAsync(content.Token);
         var user = await _userManager.FindByLoginAsync(provider, payload.Id);

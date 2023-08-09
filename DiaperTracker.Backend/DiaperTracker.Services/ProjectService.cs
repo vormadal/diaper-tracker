@@ -10,10 +10,6 @@ using Microsoft.Extensions.Options;
 
 namespace DiaperTracker.Services;
 
-public class InviteOptions
-{
-    public string InvitationUrl { get; set; }
-}
 public class ProjectService : IProjectService
 {
     private readonly IOptions<InviteOptions> _options;
@@ -55,27 +51,17 @@ public class ProjectService : IProjectService
 
         await _projectMemberRepository.Create(admin, token);
         await _projectRepository.Create(toCreate, token);
-        await _unitOfWork.SaveChangesAsync();
+        await _unitOfWork.SaveChangesAsync(token);
 
         return toCreate.Adapt<ProjectDto>();
     }
 
-    public async Task<ProjectDto> GetByProjectAndUser(string projectId, string userId, CancellationToken token = default)
+    public async Task<ProjectDto> GetByIdAndUserWithRole(string projectId, string userId, bool requireAdmin = false, CancellationToken token = default)
     {
-        var membership = await _projectMemberRepository.GetMemberAsync(projectId, userId, token);
+        var project = await IsUserAllowed(projectId, userId, requireAdmin, token);
+        EntityNotFoundException.ThrowIfNull(project, projectId);
 
-        if (membership == null)
-        {
-            throw new EntityNotFoundException($"Membership in project {projectId} and user {userId} does not exist");
-        }
-
-        var project = await _projectRepository.FindById(projectId, token: token);
         var taskTypes = await _taskTypeRepository.FindByProject(projectId, token: token);
-
-        if (project == null)
-        {
-            throw new EntityNotFoundException(typeof(Project), projectId);
-        }
 
         var dto = project.Adapt<ProjectDto>();
         dto.TaskTypes = taskTypes.Adapt<IEnumerable<TaskTypeDto>>();
@@ -89,24 +75,19 @@ public class ProjectService : IProjectService
         return projects.Adapt<IEnumerable<ProjectDto>>();
     }
 
-    public async Task Delete(string projectId, CancellationToken token = default)
+    public async Task Delete(string projectId, string userId, CancellationToken token = default)
     {
-        var project = await _projectRepository.FindById(projectId, token: token);
+        var project = await IsUserAllowed(projectId, userId, true, token);
 
         project.IsDeleted = true;
 
         await _projectRepository.Update(project, token);
-        await _unitOfWork.SaveChangesAsync();
+        await _unitOfWork.SaveChangesAsync(token);
     }
 
     public async Task<ProjectMemberInviteDto> InviteMember(string projectId, CreateProjectMemberInviteDto invite, string userId, CancellationToken token = default)
     {
-        var project = await _projectRepository.FindById(projectId, token: token);
-
-        if (!project.Members.Any(x => x.UserId == userId && x.IsAdmin))
-        {
-            throw new Exception("User is not allowed to invite members");
-        }
+        var project = await IsUserAllowed(projectId, userId, true, token);
 
         var created = await _projectMemberInviteRepository.Create(
             new ProjectMemberInvite
@@ -118,7 +99,7 @@ public class ProjectService : IProjectService
                 Status = InviteStatus.Pending
             },
             token);
-        await _unitOfWork.SaveChangesAsync();
+        await _unitOfWork.SaveChangesAsync(token);
 
         await _emailService.SendEmail(invite.Email, "Invitation for DiaperTracker",
             @$"
@@ -129,7 +110,6 @@ public class ProjectService : IProjectService
 <p>The Diaper Team</p>
 ");
 
-
         return created.Adapt<ProjectMemberInviteDto>();
     }
 
@@ -137,17 +117,19 @@ public class ProjectService : IProjectService
     {
         if (response.Response == InviteResponse.Accepted && userId == null)
         {
-            throw new Exception("Cannot accept without a user");
+            throw new NotAllowedException("Cannot accept a membership invite without being logged in");
         }
 
         var invite = await _projectMemberInviteRepository.FindById(response.Id, token);
 
+        EntityNotFoundException.ThrowIfNull(invite, response.Id);
+
         if (invite.Status != InviteStatus.Pending)
         {
-            throw new Exception("This invite has already been used");
+            throw new InviteAlreadyAcceptedException(response.Id);
         }
 
-        if (response.Response == InviteResponse.Accepted)
+        if (response.Response == InviteResponse.Accepted && userId is not null)
         {
             invite.AcceptedOn = DateTime.UtcNow;
             invite.AcceptedById = userId;
@@ -173,18 +155,14 @@ public class ProjectService : IProjectService
         }
 
         await _projectMemberInviteRepository.Update(invite, token);
-        await _unitOfWork.SaveChangesAsync();
+        await _unitOfWork.SaveChangesAsync(token);
 
         return invite.Adapt<ProjectMemberInviteDto>();
     }
 
     public async Task<IEnumerable<ProjectMemberDto>> GetMembers(string id, string userId, CancellationToken token = default)
     {
-        var project = await _projectRepository.FindById(id, token: token);
-        if (!project.Members.Any(x => x.UserId == userId))
-        {
-            throw new Exception("You don't have access");
-        }
+        var project = await IsUserAllowed(id, userId, false, token);
 
         return project.Members.Adapt<IEnumerable<ProjectMemberDto>>();
     }
@@ -193,21 +171,32 @@ public class ProjectService : IProjectService
     {
         var invite = await _projectMemberInviteRepository.FindById(id, token);
 
+        EntityNotFoundException.ThrowIfNull(invite, id);
+
         return invite.Adapt<ProjectMemberInviteDto>();
     }
 
     public async Task<ProjectDto> Update(string id, UpdateProjectDto update, string userId, CancellationToken token = default)
     {
-        var project = await _projectRepository.FindById(id, false, token);
-
-        if(!project.Members.Any(x => x.UserId == userId && x.IsAdmin))
-        {
-            throw new Exception("You don't have access to this");
-        }
-
+        var project = await IsUserAllowed(id, userId, true, token);
         await _projectRepository.Update(update.Adapt(project), token);
         await _unitOfWork.SaveChangesAsync(token);
 
-        return project.Adapt<ProjectDto>();
+        var updated = await GetByIdAndUserWithRole(id, userId, false, token);
+        return updated.Adapt<ProjectDto>();
+    }
+
+    private async Task<Project> IsUserAllowed(string projectId, string userId, bool requireAdmin = false, CancellationToken token = default)
+    {
+        var project = await _projectRepository.FindById(projectId, false, token);
+
+        EntityNotFoundException.ThrowIfNull(project, projectId);
+
+        if (!project.Members.Any(x => x.UserId == userId && (!requireAdmin || x.IsAdmin)))
+        {
+            throw new NotAllowedException("You don't have access to this");
+        }
+
+        return project;
     }
 }

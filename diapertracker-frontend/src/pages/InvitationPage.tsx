@@ -8,26 +8,30 @@ import { useContext, useState } from 'react'
 import UserContext from '../contexts/UserContext'
 import { useToast } from '../hooks/useToast'
 import Spinner from '../components/shared/Spinner'
+import { useRequest } from '../hooks/useRequest'
+import ErrorMessage from '../components/shared/ErrorMessage'
 
+const getGivenInvite = async (id?: string) => (id ? Api.getInvite(id) : undefined)
 const InvitationPage = () => {
   const params = useParams<{ id: string }>()
   const toast = useToast()
   const navigate = useNavigate()
-  const [invite] = useData(async (id) => (id ? Api.getInvite(id) : undefined), params.id)
+  const [invite] = useData(getGivenInvite, params.id)
   const [user, refreshUser] = useContext(UserContext)
   const [showLogin, setShowLogin] = useState(false)
-  const [isLoading, setLoading] = useState(false)
+  const [request, send] = useRequest()
 
   const acceptInvite = async (afterLogin: boolean) => {
     if (!params.id) return
 
     if (user.isLoggedIn || afterLogin) {
-      setLoading(true)
       setShowLogin(false)
       refreshUser()
-      await Api.acceptInvite(params.id)
-      toast.success('Invite has been accepted')
-      setLoading(false)
+      const id = params.id
+      const { success } = await send(() => Api.acceptInvite(id))
+      if (success) {
+        toast.success('Invite has been accepted')
+      }
       navigate('/')
     } else {
       setShowLogin(true)
@@ -37,11 +41,13 @@ const InvitationPage = () => {
   const declineInvite = async () => {
     if (!params.id) return
 
-    setLoading(true)
-    await Api.declineInvite(params.id)
-    toast.success('Invite has been declined')
-    setLoading(false)
-    navigate('/')
+    const id = params.id
+    const { success } = await send(() => Api.declineInvite(id))
+
+    if (success) {
+      toast.success('Invite has been declined')
+      navigate('/')
+    }
   }
   if (!params.id) return null
   return (
@@ -53,8 +59,9 @@ const InvitationPage = () => {
         item
         xs={11}
       >
-        <Spinner show={isLoading} />
-        {!isLoading && !showLogin && (
+        <ErrorMessage error={request.error} />
+        <Spinner show={request.loading} />
+        {!request.loading && !showLogin && (
           <Loading {...invite}>
             {(data) => (
               <>

@@ -11,27 +11,30 @@ interface Props {
 const GoogleLogin = ({ onResponse }: Props) => {
   const [client, setClient] = useState<google.accounts.oauth2.TokenClient>()
   const [initialized, setInitialized] = useState(false)
-  const initialize = () => {
-    if (!window.google || initialized) return
-    setInitialized(true)
-    const tokenClient = google.accounts.oauth2.initTokenClient({
-      client_id: process.env.REACT_APP_GOOGLE_CLIENT_ID!,
-      scope: 'https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile',
-      callback: (response) => {
-        onResponse(LoginStatus.LoggedIn, { token: response.access_token })
-      },
-      error_callback(error) {
-        onResponse(LoginStatus.Cancelled, { error: error.message })
-      }
-    })
 
-    setClient(tokenClient)
-  }
   useEffect(() => {
     const script = document.getElementById('google-login-script')
+
+    const initialize = () => {
+      if (!window.google || initialized) return
+      setInitialized(true)
+      const tokenClient = google.accounts.oauth2.initTokenClient({
+        client_id: process.env.REACT_APP_GOOGLE_CLIENT_ID!,
+        scope: 'https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile',
+        callback: (response) => {
+          onResponse(LoginStatus.LoggedIn, { token: response.access_token })
+        },
+        error_callback(error) {
+          onResponse(LoginStatus.Cancelled, { error: error.message })
+        }
+      })
+
+      setClient(tokenClient)
+    }
+
     script?.addEventListener('load', initialize)
     initialize()
-  }, [])
+  }, [initialized, onResponse])
 
   const onClick = () => {
     onResponse(LoginStatus.InProgress, {})

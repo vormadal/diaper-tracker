@@ -2,6 +2,7 @@
 using SendGrid;
 using Microsoft.Extensions.Options;
 using DiaperTracker.Services.Abstractions;
+using DiaperTracker.Domain.Exceptions;
 
 namespace DiaperTracker.Email.Sendgrid;
 
@@ -21,7 +22,7 @@ internal class SendgridEmailService : IEmailService
         var response = await client.SendEmailAsync(msg);
         if (!response.IsSuccessStatusCode)
         {
-            throw new Exception(await response.Body.ReadAsStringAsync());
+            throw new EmailException(await response.Body.ReadAsStringAsync());
         }
     }
 }

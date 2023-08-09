@@ -12,6 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\DiaperTracker.Domain\DiaperTracker.Domain.csproj" />
     <ProjectReference Include="..\DiaperTracker.Services.Abstractions\DiaperTracker.Services.Abstractions.csproj" />
   </ItemGroup>
 

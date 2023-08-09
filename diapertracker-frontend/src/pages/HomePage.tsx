@@ -1,19 +1,19 @@
-import { FormControl, Grid, InputLabel, MenuItem, Select, Typography } from '@mui/material'
+import { Grid, Typography } from '@mui/material'
 import { Api } from '../api'
-import { CreateTaskType, ProjectDto, TaskTypeDto } from '../api/ApiClient'
+import { ProjectDto, TaskTypeDto } from '../api/ApiClient'
 import BigActionCard from '../components/BigActionCard'
 import { ProjectFormCreate } from '../components/project/ProjectForm'
+import SelectProject from '../components/project/SelectProject'
 import Loading from '../components/shared/Loading'
+import { TaskTypeFormCreate } from '../components/taskType/TaskTypeForm'
 import { useData } from '../hooks/useData'
 import { useProject } from '../hooks/useProject'
-import { useToast } from '../hooks/useToast'
-import { TaskTypeFormCreate } from '../components/taskType/TaskTypeForm'
-import SelectProject from '../components/project/SelectProject'
+import ErrorMessage from '../components/shared/ErrorMessage'
 
+const getMyProjects = () => Api.getMyProjects()
 const HomePage = () => {
-  const toast = useToast()
-  const [projects, updateProjects] = useData(() => Api.getMyProjects())
-  const [project, setProject] = useProject()
+  const [projects, updateProjects] = useData(getMyProjects)
+  const [{ project, error }, setProject] = useProject()
 
   const handleCreatedProject = async (created: ProjectDto) => {
     await setProject(created.id)
@@ -34,6 +34,7 @@ const HomePage = () => {
         xs={11}
         md={6}
       >
+        <ErrorMessage error={error} />
         <Loading {...projects}>
           {(data) => (
             <>

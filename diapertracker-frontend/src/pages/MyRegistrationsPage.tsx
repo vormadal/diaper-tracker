@@ -7,26 +7,28 @@ import TaskFilters, { TaskFilter } from '../components/task/TaskFilters'
 import TaskList from '../components/task/TaskList'
 import { useData } from '../hooks/useData'
 import { useMemo } from 'react'
-
+import { parseJSON } from 'date-fns'
 function saveFilters(filter: TaskFilter) {
   localStorage.setItem('task-item-filters', JSON.stringify(filter))
 }
 const getSavedFilters = (): TaskFilter => {
   const str = localStorage.getItem('task-item-filters')
   if (str) {
-    return JSON.parse(str) as TaskFilter
+    const obj = JSON.parse(str) as TaskFilter
+    if (obj.fromDate) obj.fromDate = parseJSON(obj.fromDate)
+    if (obj.toDate) obj.toDate = parseJSON(obj.toDate)
+    return obj
   }
   return {}
 }
 
+const getTasksWithFilters = async (filters?: TaskFilter) =>
+  Api.getTasks(filters?.project?.id, filters?.taskType?.id, undefined, filters?.fromDate, filters?.toDate, 0, 50)
+
 function MyRegistrationsPage() {
   const navigate = useNavigate()
   const defaultFilters = useMemo(getSavedFilters, [])
-  const [tasks, updateFilters] = useData(
-    async (filters?: TaskFilter) =>
-      Api.getTasks(filters?.project?.id, filters?.taskType?.id, undefined, filters?.fromDate, filters?.toDate, 0, 50),
-    defaultFilters
-  )
+  const [tasks, updateFilters] = useData(getTasksWithFilters, defaultFilters)
 
   const handleClick = (task: TaskRecordDto) => {
     navigate(`/registrations/${task.id}`)

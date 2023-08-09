@@ -9,6 +9,7 @@ using DiaperTracker.Api;
 using DiaperTracker.Authentication;
 using DiaperTracker.Authentication.Google;
 using DiaperTracker.Email.Sendgrid;
+using DiaperTracker.Domain;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
@@ -34,7 +35,7 @@ builder.Services
     .AddSocialLoginServices()
     .AddEmailServices()
     .AddRepositories(builder.Configuration.GetConnectionString("Database"))
-    .AddExceptionMappings()
+    .AddExceptionMappings(builder.Environment.IsDevelopment())
     .AddIdentity();
 
 builder.Services.AddControllers(options =>

@@ -20,19 +20,20 @@ import Loading from '../components/shared/Loading'
 import TaskIcon from '../components/taskType/TaskIcon'
 import { TaskTypeFormCreate } from '../components/taskType/TaskTypeForm'
 import { useData } from '../hooks/useData'
+import { useRequest } from '../hooks/useRequest'
+import { useToast } from '../hooks/useToast'
+import ErrorMessage from '../components/shared/ErrorMessage'
 
+const getProject = async (id?: string) => (id ? Api.getProject(id) : undefined)
+const getMembers = async (id?: string) => (id ? Api.getMembers(id) : [])
 const ProjectSettingsPage = () => {
   const params = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const [request, send] = useRequest()
+  const toast = useToast()
   const [showCreateTaskType, setShowCreateTaskType] = useState(false)
-  const [members] = useData<ProjectMemberDto[], string>(
-    async (id?: string) => (id ? Api.getMembers(id) : []),
-    params.id
-  )
-  const [project, refreshProject, updateProject] = useData<ProjectDto, string>(
-    async (id?: string) => (id ? Api.getProject(id) : undefined),
-    params.id
-  )
+  const [members] = useData(getMembers, params.id)
+  const [project, refreshProject, updateProject] = useData(getProject, params.id)
 
   const handleTaskTypeCreated = async (taskType: CreateTaskType) => {
     setShowCreateTaskType(false)
@@ -43,6 +44,16 @@ const ProjectSettingsPage = () => {
     await updateProject(project)
   }
 
+  const deleteProject = async () => {
+    if (!params.id) return
+    const id = params.id
+    const { success } = await send(() => Api.deleteProject(id))
+
+    if (success) {
+      toast.success('Project has been deleted')
+      navigate(-1)
+    }
+  }
   if (!params.id) return null
 
   return (
@@ -131,6 +142,21 @@ const ProjectSettingsPage = () => {
             </>
           )}
         </Loading>
+      </Grid>
+      <Grid
+        item
+        xs={11}
+      >
+        <ErrorMessage error={request.error} />
+        <Typography variant="h5">Danger Zone</Typography>
+        <Alert severity="error">This operation can not be undone</Alert>
+        <p></p>
+        <Button
+          onClick={deleteProject}
+          color="error"
+        >
+          Delete
+        </Button>
       </Grid>
     </Grid>
   )

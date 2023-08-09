@@ -1,13 +1,13 @@
 import { Box, Button, Chip, Collapse, Grid, Typography } from '@mui/material'
+import { DatePicker } from '@mui/x-date-pickers'
+import { format } from 'date-fns'
+import { useEffect, useRef, useState } from 'react'
+import { Api } from '../../api'
 import { ProjectDto, TaskTypeDto } from '../../api/ApiClient'
 import { useData } from '../../hooks/useData'
-import { Api } from '../../api'
 import SelectProject from '../project/SelectProject'
 import Loading from '../shared/Loading'
-import { useEffect, useState } from 'react'
 import SelectTaskType from '../taskType/SelectTaskType'
-import { endOfToday, format, startOfToday } from 'date-fns'
-import { DatePicker, DateTimePicker } from '@mui/x-date-pickers'
 
 export interface TaskFilter {
   project?: ProjectDto
@@ -21,13 +21,14 @@ interface Props {
   defaultFilters: TaskFilter
 }
 
+const getMyProjects = () => Api.getMyProjects()
+const getProjectTaskTypes = async (projectId?: string) => (projectId ? Api.getProjectTaskTypes(projectId) : [])
+
 function TaskFilters({ onChange, defaultFilters }: Props) {
-  const [projects] = useData(() => Api.getMyProjects())
+  const _onChange = useRef(onChange)
+  const [projects] = useData(getMyProjects)
   const [selectedProject, setSelectedProject] = useState<ProjectDto | undefined>(defaultFilters.project)
-  const [taskTypes, updateTaskTypes] = useData(
-    async (projectId) => (!projectId ? [] : Api.getProjectTaskTypes(projectId)),
-    selectedProject?.id
-  )
+  const [taskTypes, updateTaskTypes] = useData(getProjectTaskTypes, selectedProject?.id)
   const [selectedTaskType, setSelectedTaskType] = useState<TaskTypeDto | undefined>(defaultFilters.taskType)
   const [show, setShow] = useState(false)
   const [fromDate, setFromDate] = useState<Date | null>(defaultFilters.fromDate || null)
@@ -44,7 +45,7 @@ function TaskFilters({ onChange, defaultFilters }: Props) {
     if (selectedProject) {
       updateTaskTypes(selectedProject?.id)
     }
-  }, [selectedProject])
+  }, [selectedProject, updateTaskTypes])
 
   useEffect(() => {
     const filters = {
@@ -53,7 +54,7 @@ function TaskFilters({ onChange, defaultFilters }: Props) {
       fromDate: fromDate || undefined,
       toDate: toDate || undefined
     }
-    onChange(filters)
+    _onChange.current(filters)
   }, [selectedProject, selectedTaskType, fromDate, toDate])
 
   const clearFilters = () => {

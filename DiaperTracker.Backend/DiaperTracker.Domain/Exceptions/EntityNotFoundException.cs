@@ -35,11 +35,11 @@ public class EntityNotFoundException : Exception
     /// <typeparam name="T"></typeparam>
     /// <param name="el"></param>
     /// <param name="id"></param>
-    public static void ThrowIfNull<T>([NotNull] T? el, Guid id)
+    public static void ThrowIfNull<T>([NotNull] T? el, string id)
     {
         if (el is null) Throw(typeof(T), id);
     }
 
     [DoesNotReturn]
-    private static void Throw(Type type, Guid id) => throw new EntityNotFoundException(type, id);
+    private static void Throw(Type type, string id) => throw new EntityNotFoundException(type, id);
 }

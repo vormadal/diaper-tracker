@@ -5,7 +5,6 @@ using DiaperTracker.Domain.Exceptions;
 using DiaperTracker.Domain.Repositories;
 using DiaperTracker.Services.Abstractions;
 using Mapster;
-using System;
 
 namespace DiaperTracker.Services;
 
@@ -27,7 +26,7 @@ internal class TaskRecordService : ITaskRecordService
         var project = await _projectRepository.FindById(task.ProjectId, false, token);
         if (project == null || !project.TaskTypes.Any(x => x.Id == task.TypeId))
         {
-            throw new Exception("Project or task type is incorrect");
+            throw new InvalidTaskRecordException($"The task type {task.TypeId} does not exist on project {task.ProjectId}");
         }
 
         var record = task.Adapt<TaskRecord>();
@@ -41,30 +40,28 @@ internal class TaskRecordService : ITaskRecordService
     public async Task DeleteTask(string id, CancellationToken token = default)
     {
         var record = await _taskRepository.FindById(id, token);
-        if (record is null)
-        {
-            throw new EntityNotFoundException(typeof(TaskRecord), id);
-        }
-        await _taskRepository.Delete(record);
+        EntityNotFoundException.ThrowIfNull(record, id);
+        await _taskRepository.Delete(record, token);
         await _unitOfWork.SaveChangesAsync(token);
     }
 
     public async Task<TaskRecordDto> FindTask(string id, CancellationToken token = default)
     {
         var record = await _taskRepository.FindById(id, token);
+        EntityNotFoundException.ThrowIfNull(record, id);
 
         return record.Adapt<TaskRecordDto>();
     }
 
-    public async Task<IEnumerable<TaskRecordDto>> GetAll(int? count, CancellationToken token = default)
+    public Task<IEnumerable<TaskRecordDto>> GetAll(int? count, CancellationToken token = default)
     {
         var query = _taskRepository.FindAll(token);
         if (count is not null)
         {
-            return query.Take(count.Value).ToList().Adapt<IEnumerable<TaskRecordDto>>();
+            query = query.Take(count.Value);
         }
 
-        return query.ToList().Adapt<IEnumerable<TaskRecordDto>>();
+        return Task.FromResult(query.ToList().Adapt<IEnumerable<TaskRecordDto>>());
     }
 
 
@@ -99,9 +96,11 @@ internal class TaskRecordService : ITaskRecordService
     public async Task<TaskRecordDto> UpdateTask(string id, UpdateTaskDto task, CancellationToken token = default)
     {
         var record = await _taskRepository.FindById(id, token);
+        EntityNotFoundException.ThrowIfNull(record, id);
+
         var update = task.Adapt(record);
         await _taskRepository.Update(update, token);
-        await _unitOfWork.SaveChangesAsync();
+        await _unitOfWork.SaveChangesAsync(token);
 
         return update.Adapt<TaskRecordDto>();
     }

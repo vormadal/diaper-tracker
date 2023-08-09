@@ -57,7 +57,7 @@ public class ProjectController : ControllerBase
     [HttpGet("{id}")]
     public async Task<ProjectDto> GetProject([FromRoute] string id, CancellationToken token)
     {
-        return await _projectService.GetByProjectAndUser(id, User.GetSubjectId(), token);
+        return await _projectService.GetByIdAndUserWithRole(id, User.GetSubjectId(), false, token);
     }
 
     /// <summary>
@@ -69,7 +69,7 @@ public class ProjectController : ControllerBase
     [HttpDelete("{id}")]
     public async Task DeleteProject([FromRoute] string id, CancellationToken token)
     {
-        await _projectService.Delete(id, token);
+        await _projectService.Delete(id, User.GetSubjectId(), token);
     }
 
     [HttpPut("{id}")]

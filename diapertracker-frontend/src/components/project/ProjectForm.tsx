@@ -3,6 +3,8 @@ import { FormEvent, useState } from 'react'
 import { CreateProjectDto, ProjectDto, UpdateProjectDto } from '../../api/ApiClient'
 import { Api } from '../../api'
 import { useToast } from '../../hooks/useToast'
+import ErrorMessage from '../shared/ErrorMessage'
+import { useRequest } from '../../hooks/useRequest'
 
 interface ProjectValues {
   name: string
@@ -61,17 +63,18 @@ interface ProjectFormCreateProps {
 
 export const ProjectFormCreate = ({ onCreated }: ProjectFormCreateProps) => {
   const toast = useToast()
+  const [request, send] = useRequest()
   const handleSubmit = async (project: ProjectValues) => {
-    try {
-      const created = await Api.createProject(new CreateProjectDto(project))
+    const { success, data: created } = await send(() => Api.createProject(new CreateProjectDto(project)))
+
+    if (success && created) {
       toast.success(`${created.name} has been registered`)
       await onCreated(created)
-    } catch (e: any) {
-      toast.error(e.message)
     }
   }
   return (
     <>
+      <ErrorMessage error={request.error} />
       <Typography variant="body1">Enter a name below to create a new project</Typography>
       <ProjectForm onSubmit={handleSubmit} />
     </>
@@ -86,17 +89,17 @@ interface ProjectFormUpdateProps {
 
 export const ProjectFormUpdate = ({ project, onUpdated, onCancel }: ProjectFormUpdateProps) => {
   const toast = useToast()
+  const [request, send] = useRequest()
   const handleSubmit = async (values: ProjectValues) => {
-    try {
-      const updated = await Api.updateProject(project.id, new UpdateProjectDto(values))
+    const { success, data: updated } = await send(() => Api.updateProject(project.id, new UpdateProjectDto(values)))
+    if (success && updated) {
       toast.success(`${updated.name} has been updated`)
       await onUpdated(updated)
-    } catch (e: any) {
-      toast.error(e.message)
     }
   }
   return (
     <>
+      <ErrorMessage error={request.error} />
       <ProjectForm
         onSubmit={handleSubmit}
         onCancel={onCancel}
