@@ -4,6 +4,7 @@ import { Api } from '../../api'
 import { CreateTaskType, TaskTypeDto, UpdateTaskTypeDto } from '../../api/ApiClient'
 import { useRequest } from '../../hooks/useRequest'
 import { useToast } from '../../hooks/useToast'
+import TaskIconSelect from './TaskIconSelect'
 
 interface TaskTypeValues {
   displayName: string
@@ -40,14 +41,8 @@ const TaskTypeForm = ({ submitButtonLabel, initialValues, onSubmit, onCancel }: 
         onChange={(e) => setName(e.target.value)}
         required
       />
-      <TextField
-        name="icon"
-        label="Icon Name"
-        placeholder="diaper or feeding"
-        value={icon}
-        onChange={(e) => setIcon(e.target.value)}
-        required
-      />
+      <TaskIconSelect selected={icon} onChange={setIcon} />
+      
       <Button
         disabled={disabled}
         type="submit"
