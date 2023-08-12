@@ -10,6 +10,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ITaskTypeService, TaskTypeService>();
         services.AddScoped<ITaskRecordService, TaskRecordService>();
         services.AddScoped<IProjectService, ProjectService>();
+        services.AddScoped<IStatisticsService, StatisticsService>();
 
         return services;
     }

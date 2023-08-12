@@ -802,6 +802,63 @@ export class ApiClient {
     }
 
     /**
+     * Gets the statistics of the current user
+     * @param projectId (optional) 
+     * @return Success
+     */
+    getTaskStatistics(projectId: string | undefined, cancelToken?: CancelToken | undefined): Promise<Statistics> {
+        let url_ = this.baseUrl + "/api/statistics/tasks?";
+        if (projectId === null)
+            throw new Error("The parameter 'projectId' cannot be null.");
+        else if (projectId !== undefined)
+            url_ += "projectId=" + encodeURIComponent("" + projectId) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: AxiosRequestConfig = {
+            method: "GET",
+            url: url_,
+            headers: {
+                "Accept": "application/json"
+            },
+            cancelToken
+        };
+
+        return this.instance.request(options_).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
+            return this.processGetTaskStatistics(_response);
+        });
+    }
+
+    protected processGetTaskStatistics(response: AxiosResponse): Promise<Statistics> {
+        const status = response.status;
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (let k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
+        if (status === 200) {
+            const _responseText = response.data;
+            let result200: any = null;
+            let resultData200  = _responseText;
+            result200 = Statistics.fromJS(resultData200);
+            return Promise.resolve<Statistics>(result200);
+
+        } else if (status !== 200 && status !== 204) {
+            const _responseText = response.data;
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        }
+        return Promise.resolve<Statistics>(null as any);
+    }
+
+    /**
      * @param project (optional) 
      * @param type (optional) 
      * @param userId (optional) 
@@ -1760,6 +1817,82 @@ export interface IProjectMemberInviteDto {
     email: string;
     isAccepted: boolean;
     token?: string;
+}
+
+export class Statistics implements IStatistics {
+    /** Label for the value - usually this is the Y-axis label. */
+    valueLabel!: string;
+    /** Label for each key - usually this is the X-axis label. */
+    keyLabel!: string;
+    /** Each value corresponds to a value in the data list. In practise each value here corresponds to a line in the graph */
+    legend!: string[];
+    /** List of maps containing a property for each DiaperTracker.Contracts.Statistics.Legend and the DiaperTracker.Contracts.Statistics.KeyLabel */
+    data!: { [key: string]: any; }[];
+
+    constructor(data?: IStatistics) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+        if (!data) {
+            this.legend = [];
+            this.data = [];
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.valueLabel = _data["valueLabel"];
+            this.keyLabel = _data["keyLabel"];
+            if (Array.isArray(_data["legend"])) {
+                this.legend = [] as any;
+                for (let item of _data["legend"])
+                    this.legend!.push(item);
+            }
+            if (Array.isArray(_data["data"])) {
+                this.data = [] as any;
+                for (let item of _data["data"])
+                    this.data!.push(item);
+            }
+        }
+    }
+
+    static fromJS(data: any): Statistics {
+        data = typeof data === 'object' ? data : {};
+        let result = new Statistics();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["valueLabel"] = this.valueLabel;
+        data["keyLabel"] = this.keyLabel;
+        if (Array.isArray(this.legend)) {
+            data["legend"] = [];
+            for (let item of this.legend)
+                data["legend"].push(item);
+        }
+        if (Array.isArray(this.data)) {
+            data["data"] = [];
+            for (let item of this.data)
+                data["data"].push(item);
+        }
+        return data;
+    }
+}
+
+export interface IStatistics {
+    /** Label for the value - usually this is the Y-axis label. */
+    valueLabel: string;
+    /** Label for each key - usually this is the X-axis label. */
+    keyLabel: string;
+    /** Each value corresponds to a value in the data list. In practise each value here corresponds to a line in the graph */
+    legend: string[];
+    /** List of maps containing a property for each DiaperTracker.Contracts.Statistics.Legend and the DiaperTracker.Contracts.Statistics.KeyLabel */
+    data: { [key: string]: any; }[];
 }
 
 /** A representation of a persisted task including type details */

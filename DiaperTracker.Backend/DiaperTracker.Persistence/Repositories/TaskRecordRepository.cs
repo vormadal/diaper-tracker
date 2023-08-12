@@ -19,9 +19,9 @@ internal class TaskRecordRepository : RepositoryBase<TaskRecord>, ITaskRecordRep
     }
 
     public async Task<IQueryable<TaskRecord>> FindWithFilters(
-        string? projectId, 
-        string? typeId, 
-        string? userId,
+        string? projectId = null, 
+        string? typeId = null, 
+        string? userId = null,
         CancellationToken token = default)
     {
         var q = _set.AsQueryable();

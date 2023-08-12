@@ -26,6 +26,7 @@ import SettingsPage from './pages/SettingsPage'
 import TaskRecordPage from './pages/TaskRecordPage'
 import TaskTypeSettingsPage from './pages/TaskTypeSettingsPage'
 import TermsPage from './pages/TermsPage'
+import StatisticsPage from './pages/StatisticsPage'
 
 const getMe = () => Api.me()
 function App() {
@@ -106,6 +107,10 @@ function App() {
                   <Route
                     path="registrations"
                     element={<MyRegistrationsPage />}
+                  />
+                  <Route
+                    path="stats"
+                    element={<StatisticsPage />}
                   />
                 </Route>
                 <Route

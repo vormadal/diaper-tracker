@@ -10,7 +10,7 @@ public class ExceptionMapperOptions
     {
         Type = typeof(Exception),
         Title = (e) => "Unknown error",
-        Description = (e) => "Something went wrong",
+        Description = (Exception e) => e.Message,
         Status = HttpStatusCode.InternalServerError
     };
     private readonly bool _includeStackTrace;

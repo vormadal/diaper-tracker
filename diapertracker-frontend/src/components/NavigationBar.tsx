@@ -33,14 +33,19 @@ const NavbarConfig = {
     },
     {
       name: 'Registrations',
-      path: '/registrations'
+      path: '/registrations',
+      requireLogin: true
+    },
+    {
+      name: 'Statistics',
+      path: '/stats',
+      requireLogin: true
     },
     {
       name: 'Settings',
       path: '/settings',
       requireLogin: true
-    },
-
+    }
   ],
   settings: [
     {
@@ -193,7 +198,6 @@ const NavigationBar = ({ handleLogout }: Props) => {
                   sx={{ p: 0 }}
                 >
                   <Avatar
-                  
                     alt={user?.fullName}
                     src={user?.imageUrl}
                   />
