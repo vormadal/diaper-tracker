@@ -6,9 +6,8 @@ on:
       - "main"
 
 jobs:
-  deploy:
+  ci:
     runs-on: windows-latest
-    environment: Production
     steps:
       - name: Set up JDK 17
         uses: actions/setup-java@v3
@@ -28,26 +27,31 @@ jobs:
         id: cache-sonar-scanner
         uses: actions/cache@v3
         with:
-          path: \.sonar\scanner
+          path: .\.sonar\scanner
           key: ${{ runner.os }}-sonar-scanner
           restore-keys: ${{ runner.os }}-sonar-scanner
       - name: Install SonarCloud scanner
         if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
         shell: pwsh
         run: |
-          New-Item -Path \.sonar\scanner -ItemType Directory
-          dotnet tool update dotnet-sonarscanner --tool-path \.sonar\scanner
+          New-Item -Path .\.sonar\scanner -ItemType Directory
+          dotnet tool update dotnet-sonarscanner --tool-path .\.sonar\scanner
       - name: Build and analyze
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         shell: pwsh
         run: |
-          ls \.sonar\scanner
-          ls \.sonar
-          dotnet-sonarscanner begin /k:"vormadal_diaper-tracker" /o:"vormadal" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io"
+          .\.sonar\scanner\dotnet-sonarscanner begin /k:"vormadal_diaper-tracker" /o:"vormadal" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io"
           dotnet build "DiaperTracker.Backend/DiaperTracker.sln"
-          dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
+          .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
+      
+  deploy:
+    runs-on: windows-latest
+    environment: Production
+    needs: [ci]
+    steps:
+      - uses: actions/checkout@v3 
       - name: Install Caprover
         run: yarn add caprover
       - name: Cache caprover
