@@ -43,6 +43,8 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         shell: pwsh
         run: |
+          ls .\.sonar\scanner
+          ls .\.sonar
           dotnet-sonarscanner begin /k:"vormadal_diaper-tracker" /o:"vormadal" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io"
           dotnet build "DiaperTracker.Backend/DiaperTracker.sln"
           dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
