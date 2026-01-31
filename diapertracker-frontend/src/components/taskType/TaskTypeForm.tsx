@@ -2,8 +2,7 @@ import { Button, TextField } from '@mui/material'
 import { FormEvent, useState } from 'react'
 import { Api } from '../../api'
 import { CreateTaskType, TaskTypeDto, UpdateTaskTypeDto } from '../../api/ApiClient'
-import { useRequest } from '../../hooks/useRequest'
-import { useToast } from '../../hooks/useToast'
+import { useRequest, useToast } from '@vormadal/react-mui'
 import TaskIconSelect from './TaskIconSelect'
 
 interface TaskTypeValues {

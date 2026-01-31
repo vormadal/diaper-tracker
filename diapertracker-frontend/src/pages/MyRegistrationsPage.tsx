@@ -2,10 +2,9 @@ import { Grid, Typography } from '@mui/material'
 import { useNavigate } from 'react-router-dom'
 import { Api } from '../api'
 import { TaskRecordDto } from '../api/ApiClient'
-import Loading from '../components/shared/Loading'
+import { Loading, useData } from '@vormadal/react-mui'
 import TaskFilters, { TaskFilter } from '../components/task/TaskFilters'
 import TaskList from '../components/task/TaskList'
-import { useData } from '../hooks/useData'
 import { useMemo } from 'react'
 import { parseJSON } from 'date-fns'
 function saveFilters(filter: TaskFilter) {
@@ -28,7 +27,7 @@ const getTasksWithFilters = async (filters?: TaskFilter) =>
 function MyRegistrationsPage() {
   const navigate = useNavigate()
   const defaultFilters = useMemo(getSavedFilters, [])
-  const [tasks, updateFilters] = useData(getTasksWithFilters, defaultFilters)
+  const [tasks, updateFilters] = useData(getTasksWithFilters, [defaultFilters])
 
   const handleClick = (task: TaskRecordDto) => {
     navigate(`/registrations/${task.id}`)

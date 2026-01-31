@@ -117,10 +117,6 @@ app.UseHttpsRedirection()
 Console.WriteLine($"Starting in environemnt: {app.Environment.EnvironmentName}");
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
-    app.UseDeveloperExceptionPage();
-
     app.UseCors(c =>
     {
         c.WithOrigins(new string[] { "https://localhost:3000" });
@@ -130,6 +126,11 @@ if (app.Environment.IsDevelopment())
     });
 
     app.UseExceptionHandler("/error-development");
+
+    app.UseSwagger();
+    app.UseSwaggerUI();
+    app.UseDeveloperExceptionPage();
+
 }
 else
 {

@@ -1,19 +1,16 @@
 import { Button, Grid, Typography } from '@mui/material'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Api } from '../api'
-import Loading from '../components/shared/Loading'
+import { Loading, useData, useRequest, useToast } from '@vormadal/react-mui'
 import { TaskRecordFormUpdate } from '../components/task/TaskRecordForm'
 import TaskIcon from '../components/taskType/TaskIcon'
-import { useData } from '../hooks/useData'
-import { useRequest } from '../hooks/useRequest'
-import { useToast } from '../hooks/useToast'
 
-const getCurrentTask = async (id?: string) => (!id ? undefined : Api.getTask(id))
+const getCurrentTask = async (id: string | undefined) => (!id ? undefined : Api.getTask(id))
 function TaskRecordPage() {
   const params = useParams<{ id: string }>()
   const navigate = useNavigate()
   const toast = useToast()
-  const [task] = useData(getCurrentTask, params.id)
+  const [task] = useData(getCurrentTask, [params.id])
   const [request, send] = useRequest()
 
   const handleUpdated = () => navigate(-1)

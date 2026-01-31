@@ -1,36 +1,61 @@
+import { BabyChangingStationRounded } from '@mui/icons-material'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
+import { QueryClient, QueryClientProvider, useQuery, useQueryClient } from '@tanstack/react-query'
+import { Loading, Navigation, ProtectedRoute, ToastProvider, Toaster, useToast } from '@vormadal/react-mui'
 import { useEffect, useState } from 'react'
 import { Route, HashRouter as Router, Routes, useNavigate, useSearchParams } from 'react-router-dom'
-import './App.css'
 import { Api } from './api'
 import { UserProfile } from './api/ApiClient'
-import NavigationBar from './components/NavigationBar'
 import { LoginStatus } from './components/login/LoginStatus'
-import Loading from './components/shared/Loading'
-import ProtectedRoute from './components/shared/ProtectedRoute'
-import Spinner from './components/shared/Spinner'
-import Toast from './components/shared/Toast'
 import { theme } from './config/Theme'
 import UserContext from './contexts/UserContext'
-import { useData } from './hooks/useData'
-import { useToast } from './hooks/useToast'
 import HomePage from './pages/HomePage'
 import InvitationPage from './pages/InvitationPage'
 import LandingPage from './pages/LandingPage'
+import LogOutPage from './pages/LogoutPage'
 import MyRegistrationsPage from './pages/MyRegistrationsPage'
 import PrivacyPage from './pages/PrivacyPage'
 import ProjectSettingsPage from './pages/ProjectSettingsPage'
 import SettingsPage from './pages/SettingsPage'
+import StatisticsPage from './pages/StatisticsPage'
 import TaskRecordPage from './pages/TaskRecordPage'
 import TaskTypeSettingsPage from './pages/TaskTypeSettingsPage'
 import TermsPage from './pages/TermsPage'
-import StatisticsPage from './pages/StatisticsPage'
+
+const navbarPages = [
+  {
+    name: 'Home',
+    path: '/'
+  },
+  {
+    name: 'Registrations',
+    path: '/registrations',
+    protected: true
+  },
+  {
+    name: 'Statistics',
+    path: '/stats',
+    protected: true
+  },
+  {
+    name: 'Settings',
+    path: '/settings',
+    protected: true
+  }
+]
+const avatarOptions = [
+  {
+    name: 'Log out',
+    path: '/logout'
+  }
+]
 
 const getMe = () => Api.me()
 function App() {
-  const [user, refreshUser] = useData(getMe)
+  const queryClient = useQueryClient()
+  const user = useQuery({ queryKey: ['me'], queryFn: getMe })
   const [loading, setLoading] = useState(false)
   const [params] = useSearchParams()
   const navigate = useNavigate()
@@ -38,7 +63,7 @@ function App() {
 
   useEffect(() => {
     if (user.error) {
-      toast.error(user.error)
+      toast.error(user.error as string)
     }
   }, [user.error, toast])
 
@@ -53,31 +78,28 @@ function App() {
     const isLoading = status === LoginStatus.InProgress
     setLoading(isLoading)
     if (!isLoading) {
-      refreshUser()
+      queryClient.invalidateQueries({ queryKey: ['me'] })
     }
   }
 
-  const handleLogout = async () => {
-    if (user.data?.idp === 'facebook') {
-      FB.logout(() => {
-        Api.signout().then(refreshUser)
-      })
-    }
-    if (user.data?.idp === 'google') {
-      await Api.signout()
-      await refreshUser()
-    }
-  }
-  if (user.loading) return <Spinner />
+  if (user.isLoading) return <Loading loading />
 
   return (
-    <UserContext.Provider value={[user.data ?? new UserProfile(), refreshUser]}>
+    <UserContext.Provider value={[user.data ?? new UserProfile(), () => {}]}>
       <>
-        <NavigationBar handleLogout={handleLogout} />
-        <Toast>
+        <Navigation
+          Icon={({ sx }) => <BabyChangingStationRounded sx={sx} />}
+          pages={navbarPages}
+          isLoggedIn={user.data?.isLoggedIn}
+          user={user.data}
+          avatarOptions={avatarOptions}
+          title="DiaperTracker"
+        >
+          <Toaster />
           <Loading
-            {...user}
-            loading={loading || user.loading}
+            data={user.data}
+            error={user.error as string}
+            loading={loading || user.isLoading}
             showReloads
           >
             {(data) => (
@@ -87,7 +109,7 @@ function App() {
                   element={user.data?.isLoggedIn ? <HomePage /> : <LandingPage onLoginChange={handleLoginChange} />}
                 />
 
-                <Route element={<ProtectedRoute user={data} />}>
+                <Route element={<ProtectedRoute isLoggedIn={data?.isLoggedIn} />}>
                   <Route
                     path="task-settings/:id"
                     element={<TaskTypeSettingsPage />}
@@ -112,6 +134,10 @@ function App() {
                     path="stats"
                     element={<StatisticsPage />}
                   />
+                  <Route
+                    path="logout"
+                    element={<LogOutPage />}
+                  />
                 </Route>
                 <Route
                   path="privacy"
@@ -128,21 +154,27 @@ function App() {
               </Routes>
             )}
           </Loading>
-        </Toast>
+        </Navigation>
       </>
     </UserContext.Provider>
   )
 }
 
+const queryClient = new QueryClient()
+
 function AppWithProviders() {
   return (
-    <Router>
-      <ThemeProvider theme={theme}>
-        <LocalizationProvider dateAdapter={AdapterDateFns}>
-          <App />
-        </LocalizationProvider>
-      </ThemeProvider>
-    </Router>
+    <QueryClientProvider client={queryClient}>
+      <Router>
+        <ToastProvider>
+          <ThemeProvider theme={theme}>
+            <LocalizationProvider dateAdapter={AdapterDateFns}>
+              <App />
+            </LocalizationProvider>
+          </ThemeProvider>
+        </ToastProvider>
+      </Router>
+    </QueryClientProvider>
   )
 }
 

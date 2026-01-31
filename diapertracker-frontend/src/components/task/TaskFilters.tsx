@@ -4,9 +4,8 @@ import { format } from 'date-fns'
 import { useEffect, useRef, useState } from 'react'
 import { Api } from '../../api'
 import { ProjectDto, TaskTypeDto } from '../../api/ApiClient'
-import { useData } from '../../hooks/useData'
+import { useData, Loading } from '@vormadal/react-mui'
 import SelectProject from '../project/SelectProject'
-import Loading from '../shared/Loading'
 import SelectTaskType from '../taskType/SelectTaskType'
 
 export interface TaskFilter {
@@ -28,7 +27,7 @@ function TaskFilters({ onChange, defaultFilters }: Props) {
   const _onChange = useRef(onChange)
   const [projects] = useData(getMyProjects)
   const [selectedProject, setSelectedProject] = useState<ProjectDto | undefined>(defaultFilters.project)
-  const [taskTypes, updateTaskTypes] = useData(getProjectTaskTypes, selectedProject?.id)
+  const [taskTypes, updateTaskTypes] = useData(getProjectTaskTypes, [selectedProject?.id])
   const [selectedTaskType, setSelectedTaskType] = useState<TaskTypeDto | undefined>(defaultFilters.taskType)
   const [show, setShow] = useState(false)
   const [fromDate, setFromDate] = useState<Date | null>(defaultFilters.fromDate || null)

@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
 import { Api } from '../../api'
 import { ExternalLoginRequest } from '../../api/ApiClient'
-import { useRequest } from '../../hooks/useRequest'
+import { useRequest } from '@vormadal/react-mui'
 import GoogleLogin from './GoogleLogin'
 import { LoginPayload } from './LoginPayload'
 import { LoginStatus } from './LoginStatus'

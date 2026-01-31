@@ -16,12 +16,9 @@ import { CreateTaskType, ProjectDto } from '../api/ApiClient'
 import MemberList from '../components/members/MemberList'
 import SendMemberInvite from '../components/members/SendMemberInvite'
 import { ProjectFormUpdate } from '../components/project/ProjectForm'
-import Loading from '../components/shared/Loading'
+import { Loading, useData, useRequest, useToast } from '@vormadal/react-mui'
 import TaskIcon from '../components/taskType/TaskIcon'
 import { TaskTypeFormCreate } from '../components/taskType/TaskTypeForm'
-import { useData } from '../hooks/useData'
-import { useRequest } from '../hooks/useRequest'
-import { useToast } from '../hooks/useToast'
 
 const getProject = async (id?: string) => (id ? Api.getProject(id) : undefined)
 const getMembers = async (id?: string) => (id ? Api.getMembers(id) : [])
@@ -31,8 +28,8 @@ const ProjectSettingsPage = () => {
   const [, send] = useRequest()
   const toast = useToast()
   const [showCreateTaskType, setShowCreateTaskType] = useState(false)
-  const [members] = useData(getMembers, params.id)
-  const [project, refreshProject, updateProject] = useData(getProject, params.id)
+  const [members] = useData(getMembers, [params.id])
+  const [project, refreshProject, updateProject] = useData(getProject, [params.id])
 
   const handleTaskTypeCreated = async (taskType: CreateTaskType) => {
     setShowCreateTaskType(false)

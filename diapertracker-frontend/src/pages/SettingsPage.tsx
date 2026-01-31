@@ -15,8 +15,7 @@ import { useNavigate } from 'react-router-dom'
 import { Api } from '../api'
 import { CreateProjectDto } from '../api/ApiClient'
 import { ProjectFormCreate } from '../components/project/ProjectForm'
-import Loading from '../components/shared/Loading'
-import { useData } from '../hooks/useData'
+import { Loading, useData } from '@vormadal/react-mui'
 
 const getMyProjects = () => Api.getMyProjects()
 const SettingsPage = () => {

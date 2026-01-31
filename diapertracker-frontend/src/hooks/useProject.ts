@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Api } from '../api'
 import { ProjectDto } from '../api/ApiClient'
-import { useRequest } from './useRequest'
+import { useRequest } from '@vormadal/react-mui'
 
 interface ResultContent {
   project: ProjectDto | undefined

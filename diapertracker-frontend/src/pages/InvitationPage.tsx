@@ -3,19 +3,15 @@ import { useContext, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Api } from '../api'
 import Login from '../components/login/Login'
-import Loading from '../components/shared/Loading'
-import Spinner from '../components/shared/Spinner'
+import { Loading, useData, useRequest, useToast } from '@vormadal/react-mui'
 import UserContext from '../contexts/UserContext'
-import { useData } from '../hooks/useData'
-import { useRequest } from '../hooks/useRequest'
-import { useToast } from '../hooks/useToast'
 
 const getGivenInvite = async (id?: string) => (id ? Api.getInvite(id) : undefined)
 const InvitationPage = () => {
   const params = useParams<{ id: string }>()
   const toast = useToast()
   const navigate = useNavigate()
-  const [invite] = useData(getGivenInvite, params.id)
+  const [invite] = useData(getGivenInvite, [params.id])
   const [user, refreshUser] = useContext(UserContext)
   const [showLogin, setShowLogin] = useState(false)
   const [request, send] = useRequest()
@@ -58,7 +54,7 @@ const InvitationPage = () => {
         item
         xs={11}
       >
-        <Spinner show={request.loading} />
+        <Loading loading={request.loading} />
         {!request.loading && !showLogin && (
           <Loading {...invite}>
             {(data) => (

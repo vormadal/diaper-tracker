@@ -2,8 +2,7 @@ import { Button, Collapse, TextField } from '@mui/material'
 import { FormEvent, useState } from 'react'
 import { Api } from '../../api'
 import { CreateProjectMemberInviteDto } from '../../api/ApiClient'
-import { useRequest } from '../../hooks/useRequest'
-import { useToast } from '../../hooks/useToast'
+import { useRequest, useToast } from '@vormadal/react-mui'
 
 type Props = {
   projectId: string

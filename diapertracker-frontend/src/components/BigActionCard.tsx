@@ -1,34 +1,95 @@
 import { ExpandMore as ExpandMoreIcon, PlusOne, Undo } from '@mui/icons-material'
 import { Card, CardActionArea, CardActions, CardContent, Chip, Collapse, IconButton, Typography } from '@mui/material'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { Loading } from '@vormadal/react-mui'
 import { differenceInMinutes, endOfToday, startOfToday } from 'date-fns'
 import { useContext, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Api } from '../api'
-import { CreateTaskDto, TaskRecordDtoPagedList, TaskTypeDto } from '../api/ApiClient'
+import {
+  CreateTaskDto,
+  ITaskRecordDtoPagedList,
+  TaskRecordDto,
+  TaskRecordDtoPagedList,
+  TaskTypeDto,
+  UserDto
+} from '../api/ApiClient'
 import UserContext from '../contexts/UserContext'
-import { useData } from '../hooks/useData'
-import { useRequest } from '../hooks/useRequest'
-import { useToast } from '../hooks/useToast'
 import { ExpandMore } from './shared/ExpandMore'
-import Loading from './shared/Loading'
 import TaskList from './task/TaskList'
 import TaskIcon from './taskType/TaskIcon'
 
 type Props = { taskType: TaskTypeDto }
 
-const getTasks = async (typeId?: string): Promise<TaskRecordDtoPagedList | undefined> =>
-  typeId ? Api.getTasksOfType(typeId, undefined, 0, 5) : undefined
-
-const getTasksToday = async (taskType?: TaskTypeDto): Promise<TaskRecordDtoPagedList | undefined> =>
-  taskType ? Api.getTasks(taskType.projectId, taskType.id, undefined, startOfToday(), endOfToday(), 0, 0) : undefined
-
 const BigActionCard = ({ taskType }: Props) => {
-  const [expanded, setExpanded] = useState(false)
-  const [request, send] = useRequest()
-  const [tasks, updateTasks] = useData(getTasks, taskType.id)
-  const [tasksToday, updateTasksToday] = useData(getTasksToday, taskType)
-  const toast = useToast()
   const [user] = useContext(UserContext)
+  const queryClient = useQueryClient()
+  const [expanded, setExpanded] = useState(false)
+  const tasks = useQuery({
+    queryKey: ['tasks', taskType.id],
+    queryFn: () => Api.getTasksOfType(taskType.id, undefined, 0, 5)
+  })
+  const taskCountToday = useQuery({
+    queryKey: ['task-count', taskType.id],
+    queryFn: () => Api.getTasks(taskType.projectId, taskType.id, undefined, startOfToday(), endOfToday(), 0, 0)
+  })
+  const deleteTask = useMutation({
+    mutationFn: (id: string) => Api.deleteTask(id),
+    onMutate: async (id) => {
+      queryClient.setQueryData<ITaskRecordDtoPagedList>(
+        ['tasks', taskType.id],
+        (old) =>
+          new TaskRecordDtoPagedList({
+            count: old?.count ?? 0 + 1,
+            total: old?.total ?? 0 + 1,
+            page: old?.page ?? 0,
+            items: (old?.items ?? []).filter((x) => x.id !== id)
+          })
+      )
+    }
+  })
+  const createTask = useMutation({
+    mutationFn: async (body: CreateTaskDto) => Api.createTask(body),
+    onMutate: async (task) => {
+      const optimisticTask = new TaskRecordDto({
+        ...task!,
+        createdBy: new UserDto({
+          fullName: user.fullName!,
+          id: user.id!,
+          firstName: user.firstName
+        }),
+        date: new Date(),
+        type: taskType,
+        id: 'optimistic'
+      })
+
+      queryClient.setQueryData<ITaskRecordDtoPagedList>(
+        ['tasks', taskType.id],
+        (old) =>
+          new TaskRecordDtoPagedList({
+            count: old?.count ?? 0 + 1,
+            total: old?.total ?? 0 + 1,
+            page: old?.page ?? 0,
+            items: [optimisticTask, ...(old?.items ?? [])]
+          })
+      )
+
+      return { optimisticTask }
+    },
+    onSuccess: (result, variables, context) => {
+      queryClient.invalidateQueries({ queryKey: ['task-count', taskType.id] })
+      queryClient.invalidateQueries({ queryKey: ['tasks', taskType.id] })
+      queryClient.setQueryData<ITaskRecordDtoPagedList>(
+        ['tasks', taskType.id],
+        (old) =>
+          new TaskRecordDtoPagedList({
+            ...old!,
+            items: old!.items.map((x) => (x.id === context?.optimisticTask.id ? result : x))
+          })
+      )
+    }
+  })
+
   const [canUndo, setCanUndo] = useState(false)
   const navigate = useNavigate()
 
@@ -42,43 +103,27 @@ const BigActionCard = ({ taskType }: Props) => {
     setExpanded(!expanded)
   }
 
-  const createTask = async () => {
-    const { success } = await send(() =>
-      Api.createTask(
-        new CreateTaskDto({
-          typeId: taskType.id,
-          projectId: taskType.projectId
-        })
-      )
-    )
-
-    if (!success) return
-
-    updateTasks()
-    updateTasksToday()
-    toast.success(`${taskType.displayName} er registreret`)
-  }
-
   const deleteLast = async () => {
     if (!tasks.data?.items.length) {
       return
     }
 
     const id = tasks.data.items[0].id
-    const { success } = await send(() => Api.deleteTask(id))
-
-    if (!success) return
-
-    updateTasks()
-    updateTasksToday()
-    toast.success('Seneste registrering er slettet')
+    deleteTask.mutateAsync(id)
   }
 
   return (
     <Card sx={{ marginBottom: '1rem' }}>
       <CardActionArea
-        onClick={createTask}
-        disabled={request.loading}
+        onClick={() =>
+          createTask.mutateAsync(
+            new CreateTaskDto({
+              projectId: taskType.projectId,
+              typeId: taskType.id
+            })
+          )
+        }
+        disabled={createTask.isLoading}
       >
         <CardContent>
           <Typography
@@ -98,7 +143,7 @@ const BigActionCard = ({ taskType }: Props) => {
           >
             {taskType.displayName}{' '}
             <Chip
-              label={`Today: ${tasksToday.data?.total || '0'}`}
+              label={`Today: ${taskCountToday.data?.total || '0'}`}
               color="primary"
             ></Chip>
           </Typography>
@@ -128,7 +173,11 @@ const BigActionCard = ({ taskType }: Props) => {
         unmountOnExit
       >
         <CardContent>
-          <Loading {...tasks}>
+          <Loading
+            data={tasks.data}
+            loading={tasks.isLoading}
+            error={tasks.error as string}
+          >
             {(data) => (
               <TaskList
                 tasks={data.items}

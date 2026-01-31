@@ -4,9 +4,8 @@ import { ProjectDto, TaskTypeDto } from '../api/ApiClient'
 import BigActionCard from '../components/BigActionCard'
 import { ProjectFormCreate } from '../components/project/ProjectForm'
 import SelectProject from '../components/project/SelectProject'
-import Loading from '../components/shared/Loading'
+import { Loading, useData } from '@vormadal/react-mui'
 import { TaskTypeFormCreate } from '../components/taskType/TaskTypeForm'
-import { useData } from '../hooks/useData'
 import { useProject } from '../hooks/useProject'
 
 const getMyProjects = () => Api.getMyProjects()

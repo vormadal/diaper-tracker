@@ -1,6 +1,6 @@
-import { Button, Collapse, FormLabel, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material'
-import { taskIcons } from './TaskIcon'
+import { Button, Collapse, FormLabel, ToggleButton, ToggleButtonGroup } from '@mui/material'
 import { useState } from 'react'
+import { taskIcons } from './TaskIcon'
 
 interface Props {
   selected?: string

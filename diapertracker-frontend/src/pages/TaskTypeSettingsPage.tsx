@@ -1,21 +1,18 @@
 import { Alert, Button, Grid, Typography } from '@mui/material'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Api } from '../api'
-import Loading from '../components/shared/Loading'
+import { Loading, useData, useRequest, useToast } from '@vormadal/react-mui'
 import { TaskTypeFormUpdate } from '../components/taskType/TaskTypeForm'
-import { useData } from '../hooks/useData'
-import { useRequest } from '../hooks/useRequest'
-import { useToast } from '../hooks/useToast'
 
 type ParamsType = {
   id: string
 }
 
-const getTaskType = async (id?: string) => (id ? Api.getTaskType(id) : undefined)
+const getTaskType = async (id: string | undefined) => (id ? Api.getTaskType(id) : undefined)
 
 const TaskTypeSettingsPage = () => {
   const params = useParams<ParamsType>()
-  const [taskType] = useData(getTaskType, params.id)
+  const [taskType] = useData(getTaskType, [''])
   const toast = useToast()
   const [, send] = useRequest()
   const navigate = useNavigate()

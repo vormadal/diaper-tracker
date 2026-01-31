@@ -1,7 +1,6 @@
 import { Label, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { Api } from '../api'
-import Loading from '../components/shared/Loading'
-import { useData } from '../hooks/useData'
+import { Loading, useData } from '@vormadal/react-mui'
 import { useProject } from '../hooks/useProject'
 
 function selectColor(colorNum: number, colors: number) {
@@ -12,8 +11,8 @@ function selectColor(colorNum: number, colors: number) {
 function StatisticsPage() {
   const [project] = useProject()
   const [stats] = useData(
-    async (projectId) => (projectId ? Api.getTaskStatistics(projectId) : undefined),
-    project.project?.id
+    async (projectId?: string) => (projectId ? Api.getTaskStatistics(projectId) : undefined),
+    [project.project?.id]
   )
   return (
     <>
